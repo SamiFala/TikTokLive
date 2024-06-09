@@ -120,38 +120,6 @@ STEP_SIZE = 100
 user_followers = []
 objectifs = []
 
-ACTIONS = {
-    1: lambda: perform_action(sound="./sounds/bruit-de-pet.wav"),
-    5: lambda: perform_action(sound="./sounds/bruit_de_rot.wav"),
-    10: lambda: perform_action(sound="./sounds/ouais_cest_greg.wav"),
-    15: lambda: perform_action(sound="./sounds/je_suis_bien.wav"),
-    20: lambda: perform_action(sound="./sounds/alerte_au_gogole.wav"),
-    30: lambda: perform_action(sound="./sounds/quoicoubeh.wav"),
-    49: lambda: perform_action(sound="./sounds/my_movie.wav"),
-    55: lambda: perform_action(sound="./sounds/on_sen_bat_les_couilles.wav"),
-    88: lambda: perform_action(sound="./sounds/chinese_rap_song.wav"),
-    99: lambda: perform_action(video='./videos/alerte-rouge.mp4', sound="./sounds/nuke_alarm.wav", device_on="giro", sleep_before_off=8, device_off="giro"),
-    100: lambda: perform_action(video='./videos/cri-de-cochon.mp4'),
-    150: lambda: perform_action(video='./videos/rap-contenders-thai.mp4'),
-    169: lambda: perform_action(video='./videos/crazy-frog.mp4'),
-    199: lambda: perform_action(sound="./sounds/police-sirene.wav", device_on="giro", sleep_before_off=10, device_off="giro"),
-    200: lambda: perform_action(video='./videos/tu-vas-repartir-mal-mon-copain.mp4'),
-    299: lambda: perform_action(video='./videos/alien.mp4', sound="./sounds/alien.wav"),
-    398: lambda: perform_action(video='./videos/got-that.mp4'),
-    399: lambda: perform_action(video='./videos/cat.mp4', sound="./sounds/nyan_cat.wav"),
-    400: lambda: perform_action(video='./videos/oui-oui.mp4', sound="./sounds/oui_oui.wav", device_on="souffleur", sleep_before_off=10, device_off="souffleur"),
-    450: lambda: perform_action(video='./videos/mr-beast-phonk.mp4'),
-    500: lambda: perform_action(video='./videos/cygne.mp4', sound="./sounds/la_danse_des_canards.wav", device_on="bubble", sleep_before_off=16, device_off="bubble"),
-    699: lambda: perform_action(video='./videos/train.mp4', sound="./sounds/train.wav", device_on="spots", sleep_before_off=9, device_off="spots"),
-    899: lambda: perform_action(video='./videos/thriller.mp4', sound="./sounds/thriller.wav", device_on="spots", sleep_before_off=14, device_off="spots"),
-    1000: lambda: perform_action(video='./videos/film_300.mp4', sound="./sounds/jump.wav", device_on="spots", sleep_before_off=20, device_off="spots"),
-    1500: lambda: perform_action(video='./videos/reine-des-neiges.mp4', device_on="neige", sleep_before_off=22, device_off="neige"),
-    1999: lambda: perform_action(video='./videos/motorcycle.mp4', sound="./sounds/motorcycle.wav", device_on="neige", sleep_before_off=10, device_off="neige"),
-    3000: lambda: perform_action(video='./videos/guiles.mp4', sound="./sounds/guiles.wav", device_on="mousse", sleep_before_off=22, device_off="mousse"),
-    4000: lambda: perform_action(video='./videos/turn-down-to-what.mp4', device_on="confettis", sleep_before_off=2, device_off="confettis"),
-    5000: lambda: print("5000")
-}
-
 
 @client.on("connect")
 async def on_connect(_: ConnectEvent):

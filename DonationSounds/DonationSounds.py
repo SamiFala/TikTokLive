@@ -89,53 +89,259 @@ class DeviceController:
             except requests.exceptions.RequestException as err:
                 print(f"Error controlling device: {err}")
 
+    def send_smoke_command(self, url):
+        body = json.dumps({
+            "command": "turnOn",
+            "parameter": "default",
+            "commandType": "command"
+        })
+        headers = {
+            'Authorization': 'Bearer 09f984c25288d88849a45b8dce8010b5f03104f8abc47ee87beb9031d97d6db550f2e903358b84f039b23ab3371032bc',
+            'Content-Type': 'application/json'
+        }
+        with rate_limiter:
+            try:
+                response = requests.post(url, headers=headers, data=body)
+                response.raise_for_status()
+            except requests.exceptions.RequestException as err:
+                print(f"Error sending smoke command: {err}")
+
+    def send_ping_pong_command(self, url):
+        body = json.dumps({
+            "command": "turnOn",
+            "parameter": "default",
+            "commandType": "command"
+        })
+        headers = {
+            'Authorization': 'Bearer 09f984c25288d88849a45b8dce8010b5f03104f8abc47ee87beb9031d97d6db550f2e903358b84f039b23ab3371032bc',
+            'Content-Type': 'application/json'
+        }
+        with rate_limiter:
+            try:
+                response = requests.post(url, headers=headers, data=body)
+                response.raise_for_status()
+            except requests.exceptions.RequestException as err:
+                print(f"Error sending pingpong command: {err}")
+
 
 controller = DeviceController(client)
 
+async def execute_action_by_diamonds(diamond_count):
+    if diamond_count == 1:
+        await controller.manually_play_sound(f"./sounds/bruit-de-pet.wav")
 
-# Actions pour les diamants
-async def perform_action(video=None, sound=None, device_on=None, device_off=None, sleep_before_off=0, sound_count=1):
-    if video:
-        controller.play_video(video)
-    if sound:
-        await controller.manually_play_sound(sound, sound_count)
-    if device_on:
-        requestToSend.get(device_commands["run"][device_on])
-    if sleep_before_off > 0 and device_off:
-        await asyncio.sleep(sleep_before_off)
-        requestToSend.get(device_commands["stop"][device_off])
+    elif diamond_count == 5:
+        await controller.manually_play_sound(f"./sounds/bruit_de_rot.wav")
+
+    elif diamond_count == 10:
+        await controller.manually_play_sound(f"./sounds/ouais_cest_greg.wav")
+
+    elif diamond_count == 15:
+        await controller.manually_play_sound(f"./sounds/je_suis_bien.wav")
+
+    elif diamond_count == 20:
+        await controller.manually_play_sound(f"./sounds/alerte_au_gogole.wav")
+
+    elif diamond_count == 30:
+        await controller.manually_play_sound(f"./sounds/quoicoubeh.wav")
+
+    elif diamond_count == 49:
+        await controller.manually_play_sound(f"./sounds/my_movie.wav")
+
+    elif diamond_count == 55:
+        await controller.manually_play_sound(f"./sounds/on_sen_bat_les_couilles.wav")
+
+    elif diamond_count == 88:
+        await controller.manually_play_sound(f"./sounds/chinese_rap_song.wav")
+
+    elif diamond_count == 99:
+        controller.control_device("giro", "on")
+        controller.play_video('./videos/alerte-rouge.mp4')
+        await controller.manually_play_sound(f"./sounds/nuke_alarm.wav")
+        await asyncio.sleep(8)
+        controller.control_device("giro", "off")
+
+    elif diamond_count == 100:
+        controller.play_video('./videos/cri-de-cochon.mp4')
+
+    elif diamond_count == 150:
+        controller.play_video('./videos/rap-contenders-thai.mp4')
+
+    elif diamond_count == 169:
+        controller.play_video('./videos/tu-vas-repartir-mal-mon-copain.mp4')
+
+    elif diamond_count == 199:
+        controller.control_device("giro", "on")
+        await controller.manually_play_sound(f"./sounds/police-sirene.wav")
+        await controller.manually_play_sound(f"./sounds/fbi-open-up.wav")
+        await asyncio.sleep(10)
+        controller.control_device("giro", "off")
+
+    elif diamond_count == 200:
+        controller.play_video('./videos/tu-vas-repartir-mal-mon-copain.mp4')
+
+    elif diamond_count == 299:
+        controller.play_video('./videos/alien.mp4')
+        await controller.manually_play_sound(f"./sounds/alien.wav")
+
+    elif diamond_count == 398:
+        controller.play_video('./videos/got-that.mp4')
+
+    elif diamond_count == 399:
+        controller.play_video('./videos/cat.mp4')
+        await controller.manually_play_sound(f"./sounds/nyan_cat.wav")
+
+    elif diamond_count == 400:
+        controller.play_video('./videos/teuf.mp4')
+        await controller.manually_play_sound(f"./sounds/losing-it.wav")
+
+    elif diamond_count == 450:
+        controller.play_video('./videos/mr-beast-phonk.mp4')
+
+    elif diamond_count == 500:
+        controller.play_video('./videos/oui-oui.mp4')
+        await controller.manually_play_sound(f"./sounds/oui_oui.wav")
+        controller.control_device("souffleur", "on")
+        await asyncio.sleep(10)
+        controller.control_device("souffleur", "off")
+
+    elif diamond_count == 699:
+        controller.play_video('./videos/cygne.mp4')
+        await controller.manually_play_sound(f"./sounds/la_danse_des_canards.wav")
+        controller.control_device("bubble", "on")
+        await asyncio.sleep(16)
+        controller.control_device("bubble", "off")
+
+    elif diamond_count == 899:
+        controller.play_video('./videos/train.mp4')
+        await controller.manually_play_sound(f"./sounds/train.wav")
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.control_device("spots", "on")
+        await asyncio.sleep(9)
+        controller.control_device("spots", "off")
+
+    elif diamond_count == 1000:
+        controller.play_video('./videos/thriller.mp4')
+        await controller.manually_play_sound(f"./sounds/thriller.wav")
+        controller.control_device("spots", "on")
+        controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
+        await asyncio.sleep(14)
+        controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
+        controller.control_device("spots", "off")
+
+    elif diamond_count == 1500:
+        controller.play_video('./videos/film_300.mp4')
+        await controller.manually_play_sound(f"./sounds/jump.wav")
+        controller.control_device("spots", "on")
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
+        await asyncio.sleep(10)
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
+        await asyncio.sleep(20)
+        controller.control_device("spots", "off")
+
+    elif diamond_count == 1999:
+        controller.play_video('./videos/reine-des-neiges.mp4')
+        controller.control_device("spots", "on")
+        controller.control_device("neige", "on")
+        await asyncio.sleep(12)
+        controller.control_device("neige", "off")
+        await asyncio.sleep(10)
+        controller.control_device("spots", "off")
+
+    elif diamond_count == 3000:
+        controller.play_video('./videos/motorcycle.mp4')
+        await controller.manually_play_sound(f"./sounds/motorcycle.wav")
+        controller.control_device("spots", "on")
+        controller.control_device("neige", "on")
+        await asyncio.sleep(10)
+        await asyncio.sleep(9)
+        controller.control_device("spots", "off")
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
+        await asyncio.sleep(2)
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
+        await asyncio.sleep(2)
+        controller.control_device("neige", "off")
+        controller.control_device("bubble", "on")
+        await asyncio.sleep(10)
+        controller.control_device("bubble", "off")
+
+    elif diamond_count == 4000:
+        controller.play_video('./videos/guiles.mp4')
+        await controller.manually_play_sound(f"./sounds/guiles.wav")
+        controller.control_device("spots", "on")
+        controller.control_device("neige", "on")
+        await asyncio.sleep(4)
+        controller.control_device("mousse", "on")
+        await asyncio.sleep(22)
+        controller.control_device("spots", "off")
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
+        await asyncio.sleep(2)
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
+        controller.control_device("mousse", "off")
+        controller.control_device("neige", "off")
+        controller.control_device("bubble", "on")
+        await asyncio.sleep(16)
+        controller.control_device("bubble", "off")
+
+    elif diamond_count == 5000:
+        controller.play_video('./videos/turn-down-to-what.mp4')
+        controller.control_device("spots", "on")
+        controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
+        controller.control_device("bubble", "on")
+        await asyncio.sleep(12)
+        controller.control_device("bubble", "off")
+        controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
+        controller.control_device("neige", "on")
+        await asyncio.sleep(12)
+        controller.control_device("neige", "off")
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
+        await asyncio.sleep(2)
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
+        await asyncio.sleep(2)
+        controller.control_device("confettis", "on")
+        await asyncio.sleep(2)
+        controller.control_device("confettis", "off")
+        controller.control_device("spots", "off")
 
 
 ACTIONS = {
-    1: lambda count: perform_action(sound="./sounds/bruit-de-pet.wav", sound_count=count),
-    5: lambda count: perform_action(sound="./sounds/bruit_de_rot.wav", sound_count=count),
-    10: lambda count: perform_action(sound="./sounds/ouais_cest_greg.wav", sound_count=count),
-    15: lambda count: perform_action(sound="./sounds/je_suis_bien.wav", sound_count=count),
-    20: lambda count: perform_action(sound="./sounds/alerte_au_gogole.wav", sound_count=count),
-    30: lambda count: perform_action(sound="./sounds/quoicoubeh.wav", sound_count=count),
-    49: lambda count: perform_action(sound="./sounds/my_movie.wav", sound_count=count),
-    55: lambda count: perform_action(sound="./sounds/on_sen_bat_les_couilles.wav", sound_count=count),
-    88: lambda count: perform_action(sound="./sounds/chinese_rap_song.wav", sound_count=count),
-    99: lambda count: perform_action(video='./videos/alerte-rouge.mp4', sound="./sounds/nuke_alarm.wav", device_on="giro", sleep_before_off=8, device_off="giro"),
-    100: lambda count: perform_action(video='./videos/cri-de-cochon.mp4'),
-    150: lambda count: perform_action(video='./videos/rap-contenders-thai.mp4'),
-    169: lambda count: perform_action(video='./videos/crazy-frog.mp4'),
-    199: lambda count: perform_action(sound="./sounds/police-sirene.wav", device_on="giro", sleep_before_off=10, device_off="giro"),
-    200: lambda count: perform_action(video='./videos/tu-vas-repartir-mal-mon-copain.mp4'),
-    299: lambda count: perform_action(video='./videos/alien.mp4', sound="./sounds/alien.wav"),
-    398: lambda count: perform_action(video='./videos/got-that.mp4'),
-    399: lambda count: perform_action(video='./videos/cat.mp4', sound="./sounds/nyan_cat.wav"),
-    400: lambda count: perform_action(video='./videos/oui-oui.mp4', sound="./sounds/oui_oui.wav", device_on="souffleur", sleep_before_off=10, device_off="souffleur"),
-    450: lambda count: perform_action(video='./videos/mr-beast-phonk.mp4'),
-    500: lambda count: perform_action(video='./videos/cygne.mp4', sound="./sounds/la_danse_des_canards.wav", device_on="bubble", sleep_before_off=16, device_off="bubble"),
-    699: lambda count: perform_action(video='./videos/train.mp4', sound="./sounds/train.wav", device_on="spots", sleep_before_off=9, device_off="spots"),
-    899: lambda count: perform_action(video='./videos/thriller.mp4', sound="./sounds/thriller.wav", device_on="spots", sleep_before_off=14, device_off="spots"),
-    1000: lambda count: perform_action(video='./videos/film_300.mp4', sound="./sounds/jump.wav", device_on="spots", sleep_before_off=20, device_off="spots"),
-    1500: lambda count: perform_action(video='./videos/reine-des-neiges.mp4', device_on="neige", sleep_before_off=22, device_off="neige"),
-    1999: lambda count: perform_action(video='./videos/motorcycle.mp4', sound="./sounds/motorcycle.wav", device_on="neige", sleep_before_off=10, device_off="neige"),
-    3000: lambda count: perform_action(video='./videos/guiles.mp4', sound="./sounds/guiles.wav", device_on="mousse", sleep_before_off=22, device_off="mousse"),
-    4000: lambda count: perform_action(video='./videos/turn-down-to-what.mp4', device_on="confettis", sleep_before_off=2, device_off="confettis"),
-    5000: lambda count: print("5000")
+    1: execute_action_by_diamonds,
+    5: execute_action_by_diamonds,
+    10: execute_action_by_diamonds,
+    15: execute_action_by_diamonds,
+    20: execute_action_by_diamonds,
+    30: execute_action_by_diamonds,
+    49: execute_action_by_diamonds,
+    55: execute_action_by_diamonds,
+    88: execute_action_by_diamonds,
+    99: execute_action_by_diamonds,
+    100: execute_action_by_diamonds,
+    150: execute_action_by_diamonds,
+    169: execute_action_by_diamonds,
+    199: execute_action_by_diamonds,
+    200: execute_action_by_diamonds,
+    299: execute_action_by_diamonds,
+    398: execute_action_by_diamonds,
+    399: execute_action_by_diamonds,
+    400: execute_action_by_diamonds,
+    450: execute_action_by_diamonds,
+    500: execute_action_by_diamonds,
+    699: execute_action_by_diamonds,
+    899: execute_action_by_diamonds,
+    1000: execute_action_by_diamonds,
+    1500: execute_action_by_diamonds,
+    1999: execute_action_by_diamonds,
+    3000: execute_action_by_diamonds,
+    4000: execute_action_by_diamonds,
+    5000: execute_action_by_diamonds
 }
 
 
@@ -151,25 +357,17 @@ async def on_follow(event: FollowEvent):
         await controller.manually_play_sound(f"./sounds/uwu.wav")
 
 
-"""@client.on(UnknownEvent)
-async def on_error(event: UnknownEvent):
-    send_webhook('Unknown Event', 'An unknown event occurred', str(event))
-    print(event)"""
-
-
 @client.on(GiftEvent)
 async def on_gift(event: GiftEvent):
     client.logger.info("Received a gift!")
-
     # Streakable gift & streak is over
     if event.gift.streakable and not event.streaking:
         print(f"{event.user.unique_id} sent {event.repeat_count}x \"{event.gift.name}\"")
-        await ACTIONS.get(event.gift.diamond_count, lambda count: asyncio.sleep(0))(event.repeat_count)
-
+        await ACTIONS.get(event.gift.diamond_count, lambda _: None)(event.gift.diamond_count)
     # Non-streakable gift
     elif not event.gift.streakable:
         print(f"{event.user.unique_id} sent \"{event.gift.name}\"")
-        await ACTIONS.get(event.gift.diamond_count, lambda count: asyncio.sleep(0))(event.repeat_count)
+        await ACTIONS.get(event.gift.diamond_count, lambda _: None)(event.gift.diamond_count)
 
 
 if __name__ == '__main__':

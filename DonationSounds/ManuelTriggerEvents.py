@@ -65,7 +65,7 @@ headers = {
     'Content-Type': 'application/json'
 }
 
-engine: Engine = pyttsx3.init()
+#engine: Engine = pyttsx3.init()
 
 
 def control_device(device_id, turn):
@@ -78,11 +78,11 @@ def control_device(device_id, turn):
     requests.request("POST", SHELLY_PLUG_URL, data=data)
 
 
-def on_like(total_likes: int):
+"""def on_like(total_likes: int):
     change_voice("fr_FR", "VoiceGenderMale")
     engine.say(f"Merci pour les {total_likes} coeurs les amis")
     engine.runAndWait()
-    requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
+    requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)"""
 
 
 def on_gift(gift_name: str):
@@ -260,13 +260,13 @@ def play_video(video_path: str):
     os.system(f'/Applications/VLC.app/Contents/MacOS/VLC {video_path} --play-and-exit -f &')
 
 
-def change_voice(language, gender='VoiceGenderFemale'):
+"""def change_voice(language, gender='VoiceGenderFemale'):
     for voice in engine.getProperty('voices'):
         if language in voice.languages and gender == voice.gender:
             engine.setProperty('voice', voice.id)
             return True
 
-    raise RuntimeError("Language '{}' for gender '{}' not found".format(language, gender))
+    raise RuntimeError("Language '{}' for gender '{}' not found".format(language, gender))"""
 
 
 class MyServer(BaseHTTPRequestHandler):
@@ -282,9 +282,9 @@ class MyServer(BaseHTTPRequestHandler):
         if gift_name:
             on_gift(gift_name)
 
-        if like_count:
+        """if like_count:
             on_like(int(like_count))
-            print("ici")
+            print("ici")"""
 
 
 if __name__ == "__main__":
