@@ -4,12 +4,13 @@ import asyncio
 import requests
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from TikTokLive.client.client import TikTokLiveClient
-from TikTokLive.events import FollowEvent, GiftEvent, DisconnectEvent, UnknownEvent
+from TikTokLive.events import FollowEvent, GiftEvent, DisconnectEvent, UnknownEvent, ConnectEvent
 from concurrent.futures import ThreadPoolExecutor
+from TikTokLive.client.logger import LogLevel
 from playsound import playsound
 from ratelimiter import RateLimiter
 
-client: TikTokLiveClient = TikTokLiveClient(unique_id="@flawlyss_keke97")
+client: TikTokLiveClient = TikTokLiveClient(unique_id="@papazguipanache")
 
 # Constantes regroupées
 SHELLY_PLUG_URL = "https://shelly-40-eu.shelly.cloud/device/relay/control"
@@ -125,6 +126,7 @@ class DeviceController:
 
 
 controller = DeviceController(client)
+
 
 async def execute_action_by_diamonds(diamond_count):
     if diamond_count == 1:
@@ -350,6 +352,11 @@ async def relaunch(_: DisconnectEvent):
     await client.start()
 
 
+@client.on(ConnectEvent)
+async def on_connect(event: ConnectEvent):
+    client.logger.info(f"Connected to @{event.unique_id}!")
+
+
 @client.on(FollowEvent)
 async def on_follow(event: FollowEvent):
     if event.user.unique_id not in user_followers:
@@ -371,6 +378,7 @@ async def on_gift(event: GiftEvent):
 
 
 if __name__ == '__main__':
+    client.logger.setLevel(LogLevel.INFO.value)
     send_webhook('Start', 'The client has started', color="00FF00")
     try:
         client.run()
