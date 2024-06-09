@@ -42,6 +42,17 @@ device_commands = {
     }
 }
 
+device_ids = {
+    "spot": "083a8dc1511d",
+    "mousse": "f169d0",
+    "souffleur": "f14512",
+    "bubble": "f16102",
+    "confettis": "4022d889bebd",
+    "giro": "4022d8871163",
+    "neige": "f12e0e"
+}
+
+
 webhook = DiscordWebhook(url=WEBHOOK_URL)
 rate_limiter = RateLimiter(max_calls=1, period=2)
 
@@ -76,7 +87,11 @@ class DeviceController:
         except Exception as e:
             print(f"Error playing video: {e}")
 
-    def control_device(self, device_id, turn):
+    def control_device(self, device_name, turn):
+        device_id = device_ids.get(device_name)
+        if not device_id:
+            print(f"Device {device_name} not found")
+            return
         data = {
             "channel": "0",
             "turn": turn,
@@ -89,6 +104,7 @@ class DeviceController:
                 response.raise_for_status()
             except requests.exceptions.RequestException as err:
                 print(f"Error controlling device: {err}")
+                print(f"Response content: {response.content}")
 
     def send_smoke_command(self, url):
         body = json.dumps({
