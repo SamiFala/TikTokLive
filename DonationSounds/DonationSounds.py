@@ -10,7 +10,7 @@ from TikTokLive.client.logger import LogLevel
 from playsound import playsound
 from ratelimiter import RateLimiter
 
-client: TikTokLiveClient = TikTokLiveClient(unique_id="@papazguipanache")
+client: TikTokLiveClient = TikTokLiveClient(unique_id="@cam_off_tiktok")
 
 # Constantes regroupées
 SHELLY_PLUG_URL = "https://shelly-40-eu.shelly.cloud/device/relay/control"
@@ -23,22 +23,22 @@ user_followers = []
 requestToSend = requests.Session()
 device_commands = {
     "run": {
-        "giro": 'http://192.168.1.22/relay/0?turn=on',
-        "bubble": 'http://192.168.1.28/relay/0?turn=on',
+        "giro": 'http://192.168.1.23/relay/0?turn=on',
+        "bubble": 'http://192.168.1.24/relay/0?turn=on',
         "neige": 'http://192.168.1.25/relay/0?turn=on',
         "mousse": 'http://192.168.1.21/relay/0?turn=on',
         "souffleur": 'http://192.168.1.26/relay/0?turn=on',
         "confettis": 'http://192.168.1.27/relay/0?turn=on',
-        "spots": 'http://192.168.1.24/relay/0?turn=on'
+        "spots": 'http://192.168.1.22/relay/0?turn=on'
     },
     "stop": {
-        "giro": 'http://192.168.1.22/relay/0?turn=off',
-        "bubble": 'http://192.168.1.28/relay/0?turn=off',
+        "giro": 'http://192.168.1.23/relay/0?turn=off',
+        "bubble": 'http://192.168.1.24/relay/0?turn=off',
         "neige": 'http://192.168.1.25/relay/0?turn=off',
         "mousse": 'http://192.168.1.21/relay/0?turn=off',
         "souffleur": 'http://192.168.1.26/relay/0?turn=off',
         "confettis": 'http://192.168.1.27/relay/0?turn=off',
-        "spots": 'http://192.168.1.24/relay/0?turn=off'
+        "spots": 'http://192.168.1.22/relay/0?turn=off'
     }
 }
 
@@ -79,12 +79,14 @@ class DeviceController:
             for _ in range(count):
                 await asyncio.to_thread(playsound, sound)
         except Exception as e:
+            send_webhook('Error', 'Error playing sound', error_detail=e, color="FF0000")
             print(f"Error playing sound: {e}")
 
     def play_video(self, video_path):
         try:
             os.system(f'/Applications/VLC.app/Contents/MacOS/VLC {video_path} --play-and-exit -f &')
         except Exception as e:
+            send_webhook('Error', 'Error playing video', error_detail=e, color="FF0000")
             print(f"Error playing video: {e}")
 
     def control_device(self, device_name, turn):
@@ -103,6 +105,7 @@ class DeviceController:
                 response = requests.post(SHELLY_PLUG_URL, data=data)
                 response.raise_for_status()
             except requests.exceptions.RequestException as err:
+                send_webhook('Error', 'Error controlling device', error_detail=err, color="FF0000")
                 print(f"Error controlling device: {err}")
                 print(f"Response content: {response.content}")
 
@@ -121,6 +124,7 @@ class DeviceController:
                 response = requests.post(url, headers=headers, data=body)
                 response.raise_for_status()
             except requests.exceptions.RequestException as err:
+                send_webhook('Error', 'Error sending smoke command', error_detail=err, color="FF0000")
                 print(f"Error sending smoke command: {err}")
 
     def send_ping_pong_command(self, url):
@@ -138,6 +142,7 @@ class DeviceController:
                 response = requests.post(url, headers=headers, data=body)
                 response.raise_for_status()
             except requests.exceptions.RequestException as err:
+                send_webhook('Error', 'Error sending pingpong command', error_detail=err, color="FF0000")
                 print(f"Error sending pingpong command: {err}")
 
 
@@ -243,6 +248,8 @@ async def execute_action_by_diamonds(diamond_count):
         await controller.manually_play_sound(f"./sounds/thriller.wav")
         controller.control_device("spots", "on")
         controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
         await asyncio.sleep(14)
         controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
         controller.control_device("spots", "off")
@@ -251,82 +258,75 @@ async def execute_action_by_diamonds(diamond_count):
         controller.play_video('./videos/film_300.mp4')
         await controller.manually_play_sound(f"./sounds/jump.wav")
         controller.control_device("spots", "on")
-        controller.send_smoke_command(SMOKE_MACHINE_URL)
-        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
-        await asyncio.sleep(10)
-        controller.send_smoke_command(SMOKE_MACHINE_URL)
-        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
+        controller.control_device("neige", "on")
         await asyncio.sleep(20)
+        controller.control_device("neige", "off")
         controller.control_device("spots", "off")
 
     elif diamond_count == 1999:
         controller.play_video('./videos/reine-des-neiges.mp4')
         controller.control_device("spots", "on")
+        controller.control_device("bubble", "on")
         controller.control_device("neige", "on")
-        await asyncio.sleep(12)
+        await asyncio.sleep(30)
         controller.control_device("neige", "off")
-        await asyncio.sleep(10)
+        controller.control_device("bubble", "off")
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
         controller.control_device("spots", "off")
 
     elif diamond_count == 3000:
-        controller.play_video('./videos/motorcycle.mp4')
-        await controller.manually_play_sound(f"./sounds/motorcycle.wav")
-        controller.control_device("spots", "on")
-        controller.control_device("neige", "on")
-        await asyncio.sleep(10)
-        await asyncio.sleep(9)
-        controller.control_device("spots", "off")
-        controller.send_smoke_command(SMOKE_MACHINE_URL)
-        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
-        await asyncio.sleep(2)
-        controller.send_smoke_command(SMOKE_MACHINE_URL)
-        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
-        await asyncio.sleep(2)
-        controller.control_device("neige", "off")
-        controller.control_device("bubble", "on")
-        await asyncio.sleep(10)
-        controller.control_device("bubble", "off")
-
-    elif diamond_count == 4000:
         controller.play_video('./videos/guiles.mp4')
         await controller.manually_play_sound(f"./sounds/guiles.wav")
         controller.control_device("spots", "on")
+        controller.control_device("bubble", "on")
         controller.control_device("neige", "on")
-        await asyncio.sleep(4)
         controller.control_device("mousse", "on")
-        await asyncio.sleep(22)
+        await asyncio.sleep(20)
+        controller.control_device("mousse", "off")
+        controller.control_device("neige", "off")
+        controller.control_device("bubble", "off")
         controller.control_device("spots", "off")
         controller.send_smoke_command(SMOKE_MACHINE_URL)
         controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
-        await asyncio.sleep(2)
-        controller.send_smoke_command(SMOKE_MACHINE_URL)
-        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
-        controller.control_device("mousse", "off")
-        controller.control_device("neige", "off")
-        controller.control_device("bubble", "on")
-        await asyncio.sleep(16)
-        controller.control_device("bubble", "off")
 
-    elif diamond_count == 5000:
+    elif diamond_count == 4000:
         controller.play_video('./videos/turn-down-to-what.mp4')
         controller.control_device("spots", "on")
-        controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
         controller.control_device("bubble", "on")
-        await asyncio.sleep(12)
-        controller.control_device("bubble", "off")
-        controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
         controller.control_device("neige", "on")
-        await asyncio.sleep(12)
+        controller.control_device("mousse", "on")
+        controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
+        await asyncio.sleep(22)
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
+        await asyncio.sleep(2)
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
+        controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
+        controller.control_device("mousse", "off")
         controller.control_device("neige", "off")
+        controller.control_device("bubble", "off")
+        controller.control_device("spots", "off")
+
+    elif diamond_count == 5000:
+        controller.play_video('./videos/interstellar.mp4')
+        await controller.manually_play_sound(f"./sounds/interstellar.wav")
+        controller.control_device("spots", "on")
+        controller.control_device("bubble", "on")
+        controller.control_device("neige", "on")
+        controller.control_device("mousse", "on")
+        controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
+        await asyncio.sleep(30)
         controller.send_smoke_command(SMOKE_MACHINE_URL)
         controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
         await asyncio.sleep(2)
         controller.send_smoke_command(SMOKE_MACHINE_URL)
         controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
-        await asyncio.sleep(2)
-        controller.control_device("confettis", "on")
-        await asyncio.sleep(2)
-        controller.control_device("confettis", "off")
+        controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
+        controller.control_device("mousse", "off")
+        controller.control_device("neige", "off")
+        controller.control_device("bubble", "off")
         controller.control_device("spots", "off")
 
 
