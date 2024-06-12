@@ -229,19 +229,19 @@ async def execute_action_by_diamonds(diamond_count):
         controller.control_device("bubble", "off")
 
     elif diamond_count == 699:
+        controller.send_smoke_command(SMOKE_MACHINE_URL)
         await controller.manually_play_sound(f"./sounds/la_danse_des_canards.wav")
-        controller.control_device("bubble", "on")
         controller.play_video('./videos/cygne.mp4')
-        await asyncio.sleep(16)
-        controller.control_device("bubble", "off")
 
     elif diamond_count == 899:
         controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
         controller.control_device("spots", "on")
         controller.play_video('./videos/train.mp4')
         await controller.manually_play_sound(f"./sounds/train.wav")
         await asyncio.sleep(9)
         controller.control_device("spots", "off")
+        controller.send_ping_pong_command(PINGPONG_MACHINE_URL)
 
     elif diamond_count == 1000:
         controller.control_device("spots", "on")
