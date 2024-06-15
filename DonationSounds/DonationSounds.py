@@ -28,8 +28,8 @@ device_commands = {
         "neige": 'http://192.168.1.21/relay/0?turn=on',
         "mousse": 'http://192.168.1.26/relay/0?turn=on',
         "souffleur": 'http://192.168.1.26/relay/0?turn=on',
-        "confettis": 'http://192.168.1.27/relay/0?turn=on',
-        "spots": 'http://192.168.1.23/relay/0?turn=on'
+        "spots": 'http://192.168.1.23/relay/0?turn=on',
+        "confettis": 'http://192.168.1.27/relay/0?turn=on'
     },
     "stop": {
         "giro": 'http://192.168.1.25/relay/0?turn=off',
@@ -37,13 +37,13 @@ device_commands = {
         "neige": 'http://192.168.1.21/relay/0?turn=off',
         "mousse": 'http://192.168.1.26/relay/0?turn=off',
         "souffleur": 'http://192.168.1.26/relay/0?turn=off',
-        "confettis": 'http://192.168.1.27/relay/0?turn=off',
-        "spots": 'http://192.168.1.23/relay/0?turn=off'
+        "spots": 'http://192.168.1.23/relay/0?turn=off',
+        "confettis": 'http://192.168.1.27/relay/0?turn=off'
     }
 }
 
 device_ids = {
-    "spot": "083a8dc1511d",
+    "spots": "083a8dc1511d",
     "mousse": "f169d0",
     "souffleur": "f14512",
     "bubble": "f16102",
@@ -230,6 +230,7 @@ async def execute_action_by_diamonds(diamond_count):
 
     elif diamond_count == 699:
         controller.send_smoke_command(SMOKE_MACHINE_URL)
+        controller.send_smoke_command(SMOKE_TWO_MACHINE_URL)
         await controller.manually_play_sound(f"./sounds/la_danse_des_canards.wav")
         controller.play_video('./videos/cygne.mp4')
 
