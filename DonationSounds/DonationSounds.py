@@ -23,21 +23,21 @@ user_followers = []
 requestToSend = requests.Session()
 device_commands = {
     "run": {
-        "giro": 'http://192.168.1.25/relay/0?turn=on',
-        "bubble": 'http://192.168.1.22/relay/0?turn=on',
-        "neige": 'http://192.168.1.21/relay/0?turn=on',
-        "mousse": 'http://192.168.1.26/relay/0?turn=on',
+        "giro": 'http://192.168.1.20/relay/0?turn=on',
+        "bubble": 'http://192.168.1.19/relay/0?turn=on',
+        "neige": 'http://192.168.1.17/relay/0?turn=on',
+        "mousse": 'http://192.168.1.18/relay/0?turn=on',
         "souffleur": 'http://192.168.1.26/relay/0?turn=on',
-        "spots": 'http://192.168.1.23/relay/0?turn=on',
+        "spots": 'http://192.168.1.16/relay/0?turn=on',
         "confettis": 'http://192.168.1.27/relay/0?turn=on'
     },
     "stop": {
-        "giro": 'http://192.168.1.25/relay/0?turn=off',
-        "bubble": 'http://192.168.1.22/relay/0?turn=off',
-        "neige": 'http://192.168.1.21/relay/0?turn=off',
-        "mousse": 'http://192.168.1.26/relay/0?turn=off',
+        "giro": 'http://192.168.1.20/relay/0?turn=off',
+        "bubble": 'http://192.168.1.19/relay/0?turn=off',
+        "neige": 'http://192.168.1.17/relay/0?turn=off',
+        "mousse": 'http://192.168.1.18/relay/0?turn=off',
         "souffleur": 'http://192.168.1.26/relay/0?turn=off',
-        "spots": 'http://192.168.1.23/relay/0?turn=off',
+        "spots": 'http://192.168.1.16/relay/0?turn=off',
         "confettis": 'http://192.168.1.27/relay/0?turn=off'
     }
 }

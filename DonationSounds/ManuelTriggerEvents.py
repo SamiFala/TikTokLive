@@ -88,7 +88,7 @@ def control_device(device_id, turn):
 def on_gift(gift_name: str):
     print(f'oeoe y a le gift : {gift_name}')
 
-    if gift_name == "Vocal Bienvenue":
+    """if gift_name == "Vocal Bienvenue":
         manually_play_sound(f"./sounds/vocal_bienvenue.wav")
 
     if gift_name == "Vocal Arrivants":
@@ -232,7 +232,186 @@ def on_gift(gift_name: str):
         requests.request("POST", PINGPONG_MACHINE_URL, headers=headers, data=body)
         requestToSend.send(stopSpotsLight)
         requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
+        requests.request("POST", SMOKE_TWO_MACHINE_URL, headers=headers, data=body)"""
+
+    if gift_name == "1":
+        manually_play_sound(f"./sounds/bruit-de-pet.wav")
+
+    elif gift_name == "5":
+        manually_play_sound(f"./sounds/bruit_de_rot.wav")
+
+    elif gift_name == "10":
+        manually_play_sound(f"./sounds/ouais_cest_greg.wav")
+
+    elif gift_name == "15":
+        manually_play_sound(f"./sounds/je_suis_bien.wav")
+
+    elif gift_name == "20":
+        manually_play_sound(f"./sounds/alerte_au_gogole.wav")
+
+    elif gift_name == "30":
+        manually_play_sound(f"./sounds/quoicoubeh.wav")
+
+    elif gift_name == "49":
+        manually_play_sound(f"./sounds/my_movie.wav")
+
+    elif gift_name == "55":
+        manually_play_sound(f"./sounds/on_sen_bat_les_couilles.wav")
+
+    elif gift_name == "88":
+        manually_play_sound(f"./sounds/chinese_rap_song.wav")
+
+    elif gift_name == "99":
+        requestToSend.send(runGiroMachine)
+        play_video('./videos/alerte-rouge.mp4')
+        manually_play_sound(f"./sounds/nuke_alarm.wav")
+        time.sleep(8)
+        requestToSend.send(stopGiroMachine)
+
+    elif gift_name == "100":
+        play_video('./videos/cri-de-cochon.mp4')
+
+    elif gift_name == "150":
+        play_video('./videos/rap-contenders-thai.mp4')
+
+    elif gift_name == "169":
+        play_video('./videos/tu-vas-repartir-mal-mon-copain.mp4')
+
+    elif gift_name == "199":
+        requestToSend.send(runGiroMachine)
+        manually_play_sound(f"./sounds/police-sirene.wav")
+        manually_play_sound(f"./sounds/fbi-open-up.wav")
+        time.sleep(10)
+        requestToSend.send(stopGiroMachine)
+
+    elif gift_name == "200":
+        play_video('./videos/tu-vas-repartir-mal-mon-copain.mp4')
+
+    elif gift_name == "299":
+        play_video('./videos/alien.mp4')
+        manually_play_sound(f"./sounds/alien.wav")
+
+    elif gift_name == "398":
+        play_video('./videos/got-that.mp4')
+
+    elif gift_name == "399":
+        play_video('./videos/cat.mp4')
+        manually_play_sound(f"./sounds/nyan_cat.wav")
+
+    elif gift_name == "400":
+        play_video('./videos/teuf.mp4')
+        manually_play_sound(f"./sounds/losing-it.wav")
+
+    elif gift_name == "450":
+        play_video('./videos/mr-beast-phonk.mp4')
+
+    elif gift_name == "500":
+        manually_play_sound(f"./sounds/oui_oui.wav")
+        requestToSend.send(runSouffleurMachine)
+        play_video('./videos/oui-oui.mp4')
+        time.sleep(10)
+        requestToSend.send(stopSouffleurMachine)
+
+    elif gift_name == "699":
+        requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
         requests.request("POST", SMOKE_TWO_MACHINE_URL, headers=headers, data=body)
+        manually_play_sound(f"./sounds/la_danse_des_canards.wav")
+        play_video('./videos/cygne.mp4')
+
+    elif gift_name == "899":
+        requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
+        requests.request("POST", PINGPONG_MACHINE_URL, headers=headers, data=body)
+        requestToSend.send(runSpotsLights)
+        play_video('./videos/train.mp4')
+        manually_play_sound(f"./sounds/train.wav")
+        time.sleep(9)
+        requestToSend.send(stopSpotsLight)
+
+    elif gift_name == "1000":
+        requestToSend.send(runSpotsLights)
+        requests.request("POST", PINGPONG_MACHINE_URL, headers=headers, data=body)
+        requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
+        requests.request("POST", SMOKE_TWO_MACHINE_URL, headers=headers, data=body)
+        play_video('./videos/thriller.mp4')
+        manually_play_sound(f"./sounds/thriller.wav")
+        time.sleep(14)
+        requests.request("POST", PINGPONG_MACHINE_URL, headers=headers, data=body)
+        requestToSend.send(stopSpotsLight)
+
+    elif gift_name == "1500":
+        requestToSend.send(runSpotsLights)
+        requestToSend.send(runNeigeMachine)
+        play_video('./videos/film_300.mp4')
+        manually_play_sound(f"./sounds/jump.wav")
+        time.sleep(20)
+        requestToSend.send(stopNeigeMachine)
+        requestToSend.send(stopSpotsLight)
+
+    elif gift_name == "1999":
+        requestToSend.send(runSpotsLights)
+        requestToSend.send(runBubbleMachine)
+        requestToSend.send(runNeigeMachine)
+        play_video('./videos/reine-des-neiges.mp4')
+        time.sleep(30)
+        requestToSend.send(stopNeigeMachine)
+        requestToSend.send(stopBubbleMachine)
+        requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
+        requests.request("POST", SMOKE_TWO_MACHINE_URL, headers=headers, data=body)
+        requestToSend.send(stopSpotsLight)
+
+    elif gift_name == "3000":
+        requestToSend.send(runSpotsLights)
+        requestToSend.send(runBubbleMachine)
+        requestToSend.send(runNeigeMachine)
+        requestToSend.send(runMousseMachine)
+        play_video('./videos/guiles.mp4')
+        manually_play_sound(f"./sounds/guiles.wav")
+        time.sleep(20)
+        requestToSend.send(stopMousseMachine)
+        requestToSend.send(stopNeigeMachine)
+        requestToSend.send(stopBubbleMachine)
+        requestToSend.send(stopSpotsLight)
+        requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
+        requests.request("POST", SMOKE_TWO_MACHINE_URL, headers=headers, data=body)
+
+    elif gift_name == "4000":
+        requestToSend.send(runSpotsLights)
+        requestToSend.send(runBubbleMachine)
+        requestToSend.send(runNeigeMachine)
+        requestToSend.send(runMousseMachine)
+        requests.request("POST", PINGPONG_MACHINE_URL, headers=headers, data=body)
+        play_video('./videos/turn-down-to-what.mp4')
+        time.sleep(22)
+        requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
+        requests.request("POST", SMOKE_TWO_MACHINE_URL, headers=headers, data=body)
+        time.sleep(2)
+        requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
+        requests.request("POST", SMOKE_TWO_MACHINE_URL, headers=headers, data=body)
+        requests.request("POST", PINGPONG_MACHINE_URL, headers=headers, data=body)
+        requestToSend.send(stopMousseMachine)
+        requestToSend.send(stopNeigeMachine)
+        requestToSend.send(stopBubbleMachine)
+        requestToSend.send(stopSpotsLight)
+
+    elif gift_name == "5000":
+        requestToSend.send(runSpotsLights)
+        requestToSend.send(runBubbleMachine)
+        requestToSend.send(runNeigeMachine)
+        requestToSend.send(runMousseMachine)
+        requests.request("POST", PINGPONG_MACHINE_URL, headers=headers, data=body)
+        play_video('./videos/interstellar.mp4')
+        manually_play_sound(f"./sounds/interstellar.wav")
+        time.sleep(30)
+        requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
+        requests.request("POST", SMOKE_TWO_MACHINE_URL, headers=headers, data=body)
+        time.sleep(2)
+        requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
+        requests.request("POST", SMOKE_TWO_MACHINE_URL, headers=headers, data=body)
+        requests.request("POST", PINGPONG_MACHINE_URL, headers=headers, data=body)
+        requestToSend.send(stopMousseMachine)
+        requestToSend.send(stopNeigeMachine)
+        requestToSend.send(stopBubbleMachine)
+        requestToSend.send(stopSpotsLight)
 
 
 def manually_play_sound(sound):
