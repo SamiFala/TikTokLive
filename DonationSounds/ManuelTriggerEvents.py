@@ -21,12 +21,12 @@ serverPort = 5050
 
 loop: AbstractEventLoop = asyncio.get_event_loop()
 
-spot = "083a8dc1511d"
+spot = "f14512"
 mousse = "f169d0"
 souffleur = "f14512"
 bulles = "f16102"
-confettis = "4022d889bebd"
-girophare = "4022d8871163"
+confettis = "d889bebd"
+girophare = "a8dc1511d"
 neige = "f12e0e"
 
 requestToSend = requests.Session()
