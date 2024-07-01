@@ -4,7 +4,7 @@ import asyncio
 import requests
 from discord_webhook import DiscordWebhook, DiscordEmbed
 from TikTokLive.client.client import TikTokLiveClient
-from TikTokLive.events import FollowEvent, GiftEvent, DisconnectEvent, UnknownEvent, ConnectEvent
+from TikTokLive.events import FollowEvent, GiftEvent, DisconnectEvent, UnknownEvent, ConnectEvent, LiveEndEvent
 from concurrent.futures import ThreadPoolExecutor
 from TikTokLive.client.logger import LogLevel
 from playsound import playsound
@@ -178,11 +178,11 @@ async def execute_action_by_diamonds(diamond_count):
         await controller.manually_play_sound(f"./sounds/chinese_rap_song.wav")
 
     elif diamond_count == 99:
-        controller.control_device("giro", "on")
         controller.play_video('./videos/alerte-rouge.mp4')
         await controller.manually_play_sound(f"./sounds/nuke_alarm.wav")
         await asyncio.sleep(8)
-        controller.control_device("giro", "off")
+        #controller.control_device("giro", "on")
+        #controller.control_device("giro", "off")
 
     elif diamond_count == 100:
         controller.play_video('./videos/cri-de-cochon.mp4')
@@ -194,11 +194,11 @@ async def execute_action_by_diamonds(diamond_count):
         controller.play_video('./videos/tu-vas-repartir-mal-mon-copain.mp4')
 
     elif diamond_count == 199:
-        controller.control_device("giro", "on")
         await controller.manually_play_sound(f"./sounds/police-sirene.wav")
         await controller.manually_play_sound(f"./sounds/fbi-open-up.wav")
         await asyncio.sleep(10)
-        controller.control_device("giro", "off")
+        #controller.control_device("giro", "on")
+        #controller.control_device("giro", "off")
 
     elif diamond_count == 200:
         controller.play_video('./videos/tu-vas-repartir-mal-mon-copain.mp4')
@@ -372,6 +372,11 @@ async def relaunch(_: DisconnectEvent):
 @client.on(ConnectEvent)
 async def on_connect(event: ConnectEvent):
     client.logger.info(f"Connected to @{event.unique_id}!")
+
+
+@client.on(LiveEndEvent)
+async def on_liveend(event: LiveEndEvent):
+    exit()
 
 
 @client.on(FollowEvent)

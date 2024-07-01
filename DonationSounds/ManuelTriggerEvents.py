@@ -32,21 +32,21 @@ neige = "f12e0e"
 requestToSend = requests.Session()
 # commandes pour lancer
 runGiroMachine = requests.Request('GET', 'http://192.168.1.25/relay/0?turn=on').prepare()
-runBubbleMachine = requests.Request('GET', 'http://192.168.1.22/relay/0?turn=on').prepare()
-runNeigeMachine = requests.Request('GET', 'http://192.168.1.21/relay/0?turn=on').prepare()
-runMousseMachine = requests.Request('GET', 'http://192.168.1.26/relay/0?turn=on').prepare()
+runBubbleMachine = requests.Request('GET', 'http://192.168.1.19/relay/0?turn=on').prepare()
+runNeigeMachine = requests.Request('GET', 'http://192.168.1.17/relay/0?turn=on').prepare()
+runMousseMachine = requests.Request('GET', 'http://192.168.1.18/relay/0?turn=on').prepare()
 runSouffleurMachine = requests.Request('GET', 'http://192.168.1.26/relay/0?turn=on').prepare()
 runConfettisMachine = requests.Request('GET', 'http://192.168.1.27/relay/0?turn=on').prepare()
-runSpotsLights = requests.Request('GET', 'http://192.168.1.23/relay/0?turn=on').prepare()
+runSpotsLights = requests.Request('GET', 'http://192.168.1.16/relay/0?turn=on').prepare()
 
 # commandes pour stopper
 stopGiroMachine = requests.Request('GET', 'http://192.168.1.25/relay/0?turn=off').prepare()
-stopBubbleMachine = requests.Request('GET', 'http://192.168.1.22/relay/0?turn=off').prepare()
-stopNeigeMachine = requests.Request('GET', 'http://192.168.1.21/relay/0?turn=off').prepare()
-stopMousseMachine = requests.Request('GET', 'http://192.168.1.26/relay/0?turn=off').prepare()
+stopBubbleMachine = requests.Request('GET', 'http://192.168.1.19/relay/0?turn=off').prepare()
+stopNeigeMachine = requests.Request('GET', 'http://192.168.1.17/relay/0?turn=off').prepare()
+stopMousseMachine = requests.Request('GET', 'http://192.168.1.18/relay/0?turn=off').prepare()
 stopSouffleurMachine = requests.Request('GET', 'http://192.168.1.26/relay/0?turn=off').prepare()
 stopConfettisMachine = requests.Request('GET', 'http://192.168.1.27/relay/0?turn=off').prepare()
-stopSpotsLight = requests.Request('GET', 'http://192.168.1.23/relay/0?turn=off').prepare()
+stopSpotsLight = requests.Request('GET', 'http://192.168.1.16/relay/0?turn=off').prepare()
 
 # Constantes regroupées
 SHELLY_PLUG_URL = "https://shelly-40-eu.shelly.cloud/device/relay/control"
@@ -64,6 +64,7 @@ headers = {
     'Authorization': 'Bearer 09f984c25288d88849a45b8dce8010b5f03104f8abc47ee87beb9031d97d6db550f2e903358b84f039b23ab3371032bc',
     'Content-Type': 'application/json'
 }
+
 
 #engine: Engine = pyttsx3.init()
 
@@ -262,11 +263,11 @@ def on_gift(gift_name: str):
         manually_play_sound(f"./sounds/chinese_rap_song.wav")
 
     elif gift_name == "99":
-        requestToSend.send(runGiroMachine)
         play_video('./videos/alerte-rouge.mp4')
         manually_play_sound(f"./sounds/nuke_alarm.wav")
         time.sleep(8)
-        requestToSend.send(stopGiroMachine)
+        #requestToSend.send(runGiroMachine)
+        #requestToSend.send(stopGiroMachine)
 
     elif gift_name == "100":
         play_video('./videos/cri-de-cochon.mp4')
@@ -278,11 +279,11 @@ def on_gift(gift_name: str):
         play_video('./videos/tu-vas-repartir-mal-mon-copain.mp4')
 
     elif gift_name == "199":
-        requestToSend.send(runGiroMachine)
         manually_play_sound(f"./sounds/police-sirene.wav")
         manually_play_sound(f"./sounds/fbi-open-up.wav")
         time.sleep(10)
-        requestToSend.send(stopGiroMachine)
+        #requestToSend.send(runGiroMachine)
+        #requestToSend.send(stopGiroMachine)
 
     elif gift_name == "200":
         play_video('./videos/tu-vas-repartir-mal-mon-copain.mp4')
@@ -307,10 +308,10 @@ def on_gift(gift_name: str):
 
     elif gift_name == "500":
         manually_play_sound(f"./sounds/oui_oui.wav")
-        requestToSend.send(runSouffleurMachine)
         play_video('./videos/oui-oui.mp4')
         time.sleep(10)
-        requestToSend.send(stopSouffleurMachine)
+        #requestToSend.send(runSouffleurMachine)
+        #requestToSend.send(stopSouffleurMachine)
 
     elif gift_name == "699":
         requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
