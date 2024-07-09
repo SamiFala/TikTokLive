@@ -34,19 +34,19 @@ requestToSend = requests.Session()
 runGiroMachine = requests.Request('GET', 'http://192.168.1.25/relay/0?turn=on').prepare()
 runBubbleMachine = requests.Request('GET', 'http://192.168.1.19/relay/0?turn=on').prepare()
 runNeigeMachine = requests.Request('GET', 'http://192.168.1.17/relay/0?turn=on').prepare()
-runMousseMachine = requests.Request('GET', 'http://192.168.1.18/relay/0?turn=on').prepare()
+runMousseMachine = requests.Request('GET', 'http://192.168.1.16/relay/0?turn=on').prepare()
 runSouffleurMachine = requests.Request('GET', 'http://192.168.1.26/relay/0?turn=on').prepare()
 runConfettisMachine = requests.Request('GET', 'http://192.168.1.27/relay/0?turn=on').prepare()
-runSpotsLights = requests.Request('GET', 'http://192.168.1.16/relay/0?turn=on').prepare()
+runSpotsLights = requests.Request('GET', 'http://192.168.1.25/relay/0?turn=on').prepare()
 
 # commandes pour stopper
 stopGiroMachine = requests.Request('GET', 'http://192.168.1.25/relay/0?turn=off').prepare()
 stopBubbleMachine = requests.Request('GET', 'http://192.168.1.19/relay/0?turn=off').prepare()
 stopNeigeMachine = requests.Request('GET', 'http://192.168.1.17/relay/0?turn=off').prepare()
-stopMousseMachine = requests.Request('GET', 'http://192.168.1.18/relay/0?turn=off').prepare()
+stopMousseMachine = requests.Request('GET', 'http://192.168.1.16/relay/0?turn=off').prepare()
 stopSouffleurMachine = requests.Request('GET', 'http://192.168.1.26/relay/0?turn=off').prepare()
 stopConfettisMachine = requests.Request('GET', 'http://192.168.1.27/relay/0?turn=off').prepare()
-stopSpotsLight = requests.Request('GET', 'http://192.168.1.16/relay/0?turn=off').prepare()
+stopSpotsLight = requests.Request('GET', 'http://192.168.1.25/relay/0?turn=off').prepare()
 
 # Constantes regroupées
 SHELLY_PLUG_URL = "https://shelly-40-eu.shelly.cloud/device/relay/control"
@@ -307,11 +307,11 @@ def on_gift(gift_name: str):
         play_video('./videos/mr-beast-phonk.mp4')
 
     elif gift_name == "500":
+        requestToSend.send(runBubbleMachine)
         manually_play_sound(f"./sounds/oui_oui.wav")
         play_video('./videos/oui-oui.mp4')
         time.sleep(10)
-        #requestToSend.send(runSouffleurMachine)
-        #requestToSend.send(stopSouffleurMachine)
+        requestToSend.send(stopBubbleMachine)
 
     elif gift_name == "699":
         requests.request("POST", SMOKE_MACHINE_URL, headers=headers, data=body)
