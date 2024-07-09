@@ -31,7 +31,7 @@ neige = "f12e0e"
 
 requestToSend = requests.Session()
 # commandes pour lancer
-runGiroMachine = requests.Request('GET', 'http://192.168.1.25/relay/0?turn=on').prepare()
+runGiroMachine = requests.Request('GET', 'http://192.168.1.20/relay/0?turn=on').prepare()
 runBubbleMachine = requests.Request('GET', 'http://192.168.1.19/relay/0?turn=on').prepare()
 runNeigeMachine = requests.Request('GET', 'http://192.168.1.17/relay/0?turn=on').prepare()
 runMousseMachine = requests.Request('GET', 'http://192.168.1.16/relay/0?turn=on').prepare()
@@ -40,7 +40,7 @@ runConfettisMachine = requests.Request('GET', 'http://192.168.1.27/relay/0?turn=
 runSpotsLights = requests.Request('GET', 'http://192.168.1.25/relay/0?turn=on').prepare()
 
 # commandes pour stopper
-stopGiroMachine = requests.Request('GET', 'http://192.168.1.25/relay/0?turn=off').prepare()
+stopGiroMachine = requests.Request('GET', 'http://192.168.1.20/relay/0?turn=off').prepare()
 stopBubbleMachine = requests.Request('GET', 'http://192.168.1.19/relay/0?turn=off').prepare()
 stopNeigeMachine = requests.Request('GET', 'http://192.168.1.17/relay/0?turn=off').prepare()
 stopMousseMachine = requests.Request('GET', 'http://192.168.1.16/relay/0?turn=off').prepare()
@@ -263,11 +263,11 @@ def on_gift(gift_name: str):
         manually_play_sound(f"./sounds/chinese_rap_song.wav")
 
     elif gift_name == "99":
+        requestToSend.send(runGiroMachine)
         play_video('./videos/alerte-rouge.mp4')
         manually_play_sound(f"./sounds/nuke_alarm.wav")
         time.sleep(8)
-        #requestToSend.send(runGiroMachine)
-        #requestToSend.send(stopGiroMachine)
+        requestToSend.send(stopGiroMachine)
 
     elif gift_name == "100":
         play_video('./videos/cri-de-cochon.mp4')
@@ -279,11 +279,11 @@ def on_gift(gift_name: str):
         play_video('./videos/tu-vas-repartir-mal-mon-copain.mp4')
 
     elif gift_name == "199":
+        requestToSend.send(runGiroMachine)
         manually_play_sound(f"./sounds/police-sirene.wav")
         manually_play_sound(f"./sounds/fbi-open-up.wav")
         time.sleep(10)
-        #requestToSend.send(runGiroMachine)
-        #requestToSend.send(stopGiroMachine)
+        requestToSend.send(stopGiroMachine)
 
     elif gift_name == "200":
         play_video('./videos/tu-vas-repartir-mal-mon-copain.mp4')
