@@ -43,8 +43,8 @@ device_commands = {
 }
 
 device_ids = {
-    "spots": "f14512",
-    "mousse": "f169d0",
+    "spots": "4022d889bebd",
+    "mousse": "f14512",
     "souffleur": "f14512",
     "bubble": "f16102",
     "confettis": "4022d889bebd",
