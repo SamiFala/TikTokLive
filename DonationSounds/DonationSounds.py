@@ -384,6 +384,7 @@ async def on_follow(event: FollowEvent):
         await controller.manually_play_sound(f"./sounds/uwu.wav")
 
 
+@client.on(GiftEvent)
 async def on_gift(event: GiftEvent):
     client.logger.info("Received a gift!")
     # Streakable gift & streak is over
