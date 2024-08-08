@@ -534,7 +534,7 @@ def index():
     return render_template('index.html')
 
 def run_flask():
-    socketio.run(app, host='0.0.0.0', port=8080)
+    socketio.run(app, host='0.0.0.0', port=8081)
 
 def run_http_server():
     webServer = HTTPServer((hostName, serverPort), MyServer)
