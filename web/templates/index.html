@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>LIVE TIKTOK INTERACTIF</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <style>
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            font-family: Arial, sans-serif;
+        }
+        #container {
+            background-color: rgba(255, 255, 255, 0.5); /* Initial opacity */
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+            width: 100%;
+        }
+        form {
+            margin-bottom: 10px;
+        }
+        button {
+            width: 100%;
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 1em;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: rgba(0, 123, 255, 0.7); /* Initial opacity */
+            color: white;
+        }
+        button:hover {
+            background-color: rgba(0, 86, 179, 0.7); /* Initial opacity */
+        }
+        input[type="file"] {
+            margin-bottom: 10px;
+        }
+        #status {
+            font-size: 2em;
+            font-weight: bold;
+            margin-top: 20px;
+        }
+        #enablePlayback {
+            margin-top: 10px;
+            background-color: rgba(40, 167, 69, 0.7); /* Initial opacity */
+        }
+        #enablePlayback:hover {
+            background-color: rgba(33, 136, 56, 0.7); /* Initial opacity */
+        }
+        #opacityControl {
+            position: fixed;
+            bottom: 10px;
+            width: 90%;
+            left: 5%;
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <form id="startForm">
+            <button type="submit">Lancer le programme</button>
+        </form>
+        <form id="stopForm">
+            <button type="submit">Arrêter le programme</button>
+        </form>
+        <form id="uploadForm" enctype="multipart/form-data">
+            <input type="file" id="fileInput" accept="image/*">
+            <button type="submit">Valider le fond d'écran</button>
+        </form>
+        <div id="status">OFF</div>
+        <button id="enablePlayback">Accepter la lecture auto.</button>
+    </div>
+    <input type="range" id="opacityControl" min="0" max="100" value="50">
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+        var playbackEnabled = false;
+
+        document.getElementById('enablePlayback').addEventListener('click', function() {
+            playbackEnabled = true;
+            alert("Playback enabled!");
+        });
+
+        document.getElementById('opacityControl').addEventListener('input', function() {
+            var opacityValue = document.getElementById('opacityControl').value;
+            var opacity = opacityValue / 100;
+            document.getElementById('container').style.backgroundColor = `rgba(255, 255, 255, ${opacity})`;
+            var buttons = document.querySelectorAll('button');
+            buttons.forEach(button => {
+                button.style.backgroundColor = `rgba(0, 123, 255, ${0.7 * opacity})`;
+                button.style.color = `rgba(255, 255, 255, ${0.7 * opacity})`;
+                button.onmouseover = function() {
+                    this.style.backgroundColor = `rgba(0, 86, 179, ${0.7 * opacity})`;
+                }
+                button.onmouseout = function() {
+                    this.style.backgroundColor = `rgba(0, 123, 255, ${0.7 * opacity})`;
+                }
+            });
+            document.getElementById('enablePlayback').style.backgroundColor = `rgba(40, 167, 69, ${0.7 * opacity})`;
+            document.getElementById('enablePlayback').onmouseover = function() {
+                this.style.backgroundColor = `rgba(33, 136, 56, ${0.7 * opacity})`;
+            }
+            document.getElementById('enablePlayback').onmouseout = function() {
+                this.style.backgroundColor = `rgba(40, 167, 69, ${0.7 * opacity})`;
+            }
+        });
+
+        // Écouter les messages de statut
+        socket.on('status', function(msg) {
+            document.getElementById('status').innerText = msg.data;
+            document.getElementById('status').style.color = msg.data === 'ON' ? 'green' : 'red';
+        });
+
+        document.getElementById('startForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetch('/start', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => console.log(data))
+                .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('stopForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            fetch('/stop', {method: 'POST'})
+                .then(response => response.json())
+                .then(data => console.log(data))
+                .catch(error => console.error('Error:', error));
+        });
+
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            var formData = new FormData();
+            var fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length > 0) {
+                formData.append('file', fileInput.files[0]);
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        document.body.style.backgroundImage = `url(${data.url})`;
+                        localStorage.setItem('backgroundImage', data.url); // Sauvegarder l'image en local
+                    } else {
+                        console.error('Error uploading file:', data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            } else {
+                console.error('No file selected');
+            }
+        });
+
+        // Charger l'image de fond depuis le localStorage
+        var backgroundImage = localStorage.getItem('backgroundImage');
+        if (backgroundImage) {
+            document.body.style.backgroundImage = `url(${backgroundImage})`;
+        }
+
+        // Écouter les événements pour jouer des sons
+        socket.on('play_sound', function(data) {
+            if (playbackEnabled) {
+                var audio = new Audio(data.sound);
+                audio.play().catch(function(error) {
+                    console.error('Error playing sound:', error);
+                });
+            }
+        });
+
+        // Écouter les événements pour jouer des vidéos
+        socket.on('play_video', function(data) {
+            if (playbackEnabled) {
+                var video = document.createElement('video');
+                video.src = data.video;
+                video.autoplay = true;
+                video.controls = true;
+                video.style.position = 'fixed';
+                video.style.top = '0';
+                video.style.left = '0';
+                video.style.width = '100%';
+                video.style.height = '100%';
+                video.style.zIndex = '1000';
+                document.body.appendChild(video);
+                video.addEventListener('ended', function() {
+                    document.body.removeChild(video);
+                });
+            }
+        });
+    </script>
+</body>
+</html>

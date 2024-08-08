@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Logs</title>
+    <script src="https://cdn.socket.io/4.0.0/socket.io.min.js"></script>
+    <style>
+        #logs {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: scroll;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+<body>
+    <h1>Logs</h1>
+    <div id="logContainer">
+        <pre id="logs"></pre>
+    </div>
+    <script>
+        var socket = io.connect('http://' + document.domain + ':' + location.port);
+
+        // Écouter les logs
+        socket.on('log', function(msg) {
+            console.log("Log received:", msg.data); // Debug log
+            var logs = document.getElementById('logs');
+            logs.innerText += msg.data + '\n';
+            logs.scrollTop = logs.scrollHeight;  // Scroller vers le bas
+        });
+    </script>
+</body>
+</html>
