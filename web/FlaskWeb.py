@@ -538,7 +538,7 @@ def run_flask():
 
 def run_http_server():
     webServer = HTTPServer((hostName, serverPort), MyServer)
-    logger.info(f"Server started http://{hostName}:{serverPort}")
+    logger.info(f"Server started https://{hostName}:{serverPort}")
 
     try:
         webServer.serve_forever()
