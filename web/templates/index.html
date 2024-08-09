@@ -44,7 +44,7 @@
             background-position: center;
             background-repeat: no-repeat;
             background-image: url('../static/images/TIKTOK_LIT_V4.PNG');
-            z-index: 1; /* Assurez-vous que cette valeur est bien inférieure à celle des autres éléments */
+            z-index: 1;
         }
         .card-custom {
             border-radius: 10px;
@@ -139,14 +139,14 @@
 
     <script>
         // DEV MODE: Activer le mode de développement pour voir les logs
-        var socket = io.connect('http://' + document.domain + ':' + location.port, {
+        /*var socket = io.connect('http://' + document.domain + ':' + location.port, {
             transports: ['websocket']
-        })
+        })*/
 
         // PROD MODE: Activer le mode de production pour éviter les logs
-        /*var socket = io.connect('https://' + document.domain + ':' + location.port, {
+        var socket = io.connect('https://' + document.domain + ':' + location.port, {
             transports: ['websocket']
-        });*/
+        });
 
         var playbackEnabled = false;
 
