@@ -124,10 +124,12 @@ async def stop_tiktok_client():
 
 # Fonction pour jouer un son via le client web
 def play_sound_web(sound_path):
+    logger.info(f"Emitting play_sound event for: {sound_path}")  # Log supplémentaire
     socketio.emit('play_sound', {'sound': f'/static/{sound_path}'}, namespace='/')
 
 # Fonction pour jouer une vidéo via le client web
 def play_video_web(video_path):
+    logger.info(f"Emitting play_video event for: {video_path}")  # Log supplémentaire
     socketio.emit('play_video', {'video': f'/static/{video_path}'}, namespace='/')
 
 
@@ -158,6 +160,7 @@ async def handle_gift(gift_value):
     gift_value = int(gift_value)  # Convertir en entier si nécessaire
 
     if gift_value == 1:
+        logger.info("Playing sound for gift_value 1")     # Ajoutez un log pour chaque condition
         play_sound_web("./sounds/bruit-de-pet.wav")
 
     elif gift_value == 5:
@@ -434,13 +437,18 @@ class MyServer(BaseHTTPRequestHandler):
 
         # Analyser les paramètres de l'URL directement
         parameters = urllib.parse.parse_qs(self.path)
+        logger.info(f"Parsed parameters: {parameters}")  # Log supplémentaire
+
         gift_name = next(iter(parameters.get('gift_name', [])[0:1]), None)
+        logger.info(f"Gift name received: {gift_name}")  # Log supplémentaire
+
 
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
 
         if gift_name:
+            logger.info(f"Triggering gift handling for: {gift_name}")  # Log supplémentaire
             asyncio.run_coroutine_threadsafe(la_gachette(gift_name), loop)
 
 
@@ -457,7 +465,7 @@ async def la_gachette(gift_name: str):
         else:
             await handle_gift(gift_name)
     except Exception as e:
-        logger.error(f"Error handling gift '{gift_name}': {str(e)}")
+        logger.error(f"Error handling gift '{gift_name}': {str(e)}", exc_info=True)  # Log d'erreur détaillé
         print(f"Error handling gift '{gift_name}': {str(e)}")
 
 async def main():
