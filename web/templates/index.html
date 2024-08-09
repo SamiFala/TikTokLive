@@ -83,6 +83,9 @@
     </div>
     <input type="range" id="opacityControl" min="0" max="100" value="50">
     <script>
+        // DEV MODE
+        //var socket = io.connect('http://' + document.domain + ':' + location.port);
+        // PROD MODE
         var socket = io.connect('http://' + document.domain + ':' + location.port);
         var playbackEnabled = false;
 
