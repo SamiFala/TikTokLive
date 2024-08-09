@@ -81,7 +81,7 @@ def read_log_stream(stream, log_type):
         if line:
             log = line.decode('utf-8').strip()
             logger.info(f"Log du script TikTok ({log_type}): {log}")
-            socketio.emit('log', {'data': log}, namespace='/')
+            socketio.emit('log', {'data': log})
     stream.close()
 
 def send_webhook(event, description, error_detail=None, color="242424"):
@@ -102,7 +102,7 @@ async def start_tiktok_client():
         if not client_connected:
             asyncio.ensure_future(client.start())
             client_connected = True
-            socketio.emit('status', {'data': 'ON'}, namespace='/')
+            socketio.emit('status', {'data': 'ON'})
             logger.info("Le client TikTok a été démarré.")
         else:
             logger.warning("Le client TikTok est déjà connecté.")
@@ -117,7 +117,7 @@ async def stop_tiktok_client():
         else:
             logger.error("Client TikTok does not have an awaitable 'disconnect' method.")
         client_connected = False
-        socketio.emit('status', {'data': 'OFF'}, namespace='/')
+        socketio.emit('status', {'data': 'OFF'})
         logger.info("Le client TikTok a été arrêté.")
     else:
         logger.warning("Le client TikTok n'est pas en cours d'exécution.")
@@ -125,12 +125,12 @@ async def stop_tiktok_client():
 # Fonction pour jouer un son via le client web
 def play_sound_web(sound_path):
     logger.info(f"Emitting play_sound event for: {sound_path}")  # Log supplémentaire
-    socketio.emit('play_sound', {'sound': f'/static/{sound_path}'}, namespace='/')
+    socketio.emit('play_sound', {'sound': f'/static/{sound_path}'})
 
 # Fonction pour jouer une vidéo via le client web
 def play_video_web(video_path):
     logger.info(f"Emitting play_video event for: {video_path}")  # Log supplémentaire
-    socketio.emit('play_video', {'video': f'/static/{video_path}'}, namespace='/')
+    socketio.emit('play_video', {'video': f'/static/{video_path}'})
 
 
 class DeviceController:
@@ -519,7 +519,7 @@ def start_script():
 
     logger.info("Requête de démarrage reçue.")
     asyncio.run_coroutine_threadsafe(start_tiktok_client(), loop)
-    socketio.emit('status', {'data': 'ON'}, namespace='/')
+    socketio.emit('status', {'data': 'ON'})
     logger.info("Le client TikTok a été démarré.")
     return jsonify({"status": "Client started"}), 200
 
@@ -531,7 +531,7 @@ def stop_script():
 
     logger.info("Requête d'arrêt reçue.")
     asyncio.run_coroutine_threadsafe(stop_tiktok_client(), loop)
-    socketio.emit('status', {'data': 'OFF'}, namespace='/')
+    socketio.emit('status', {'data': 'OFF'})
     logger.info("Le client TikTok a été arrêté.")
     return jsonify({"status": "Client stopped"}), 200
 
@@ -556,7 +556,7 @@ def logs():
 @socketio.on('connect')
 def test_connect():
     logger.info("Client connected")
-    socketio.emit('test_message', {'data': 'Server says hello!'}, namespace='/')
+    socketio.emit('test_message', {'data': 'Server says hello!'})
 
 @app.route('/')
 def index():
