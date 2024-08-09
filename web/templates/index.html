@@ -89,7 +89,7 @@
         //var socket = io.connect('https://' + document.domain + ':' + location.port);
         var port = location.port || (location.protocol === 'https:' ? 443 : 80);
         var socket = io.connect('https://' + document.domain + ':' + port, {
-            transports: ['polling']
+            transports: ['websocket']
         });
 
         var playbackEnabled = false;
