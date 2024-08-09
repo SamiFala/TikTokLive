@@ -321,6 +321,10 @@ def upload_file():
     else:
         return jsonify({'success': False, 'error': 'Invalid file type'}), 400
 
+@app.errorhandler(413)
+def too_large(e):
+    return "Le fichier est trop volumineux", 413
+
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
     return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
