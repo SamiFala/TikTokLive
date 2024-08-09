@@ -537,6 +537,11 @@ def logs():
     logger.debug("Page des logs demandée.")
     return render_template('logs.html')
 
+# Serveur Python minimal
+@socketio.on('connect')
+def test_connect():
+    logger.info("Client connected")
+    socketio.emit('test_message', {'data': 'Server says hello!'}, namespace='/')
 
 @app.route('/')
 def index():
