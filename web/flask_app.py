@@ -356,6 +356,10 @@ def download_file(filename):
     except Exception as e:
         return jsonify({'success': False, 'error': str(e)}), 500
 
+@app.route('/uploads/<path:filename>')
+def serve_uploads(filename):
+    return send_from_directory('web/uploads', filename)
+
 @app.route('/start', methods=['POST'])
 def start_script():
     try:

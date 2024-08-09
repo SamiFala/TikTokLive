@@ -43,6 +43,7 @@
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            background-image: url('../static/images/TIKTOK_LIT_V4.PNG');
             z-index: 1; /* Assurez-vous que cette valeur est bien inférieure à celle des autres éléments */
         }
         .card-custom {
@@ -138,14 +139,14 @@
 
     <script>
         // DEV MODE: Activer le mode de développement pour voir les logs
-        /*var socket = io.connect('http://' + document.domain + ':' + location.port, {
+        var socket = io.connect('http://' + document.domain + ':' + location.port, {
             transports: ['websocket']
-        })*/
+        })
 
         // PROD MODE: Activer le mode de production pour éviter les logs
-        var socket = io.connect('https://' + document.domain + ':' + location.port, {
+        /*var socket = io.connect('https://' + document.domain + ':' + location.port, {
             transports: ['websocket']
-        });
+        });*/
 
         var playbackEnabled = false;
 
@@ -154,12 +155,12 @@
             playbackEnabled = true;
         });
 
-        // Charger l'image de fond depuis le localStorage
         var backgroundImage = localStorage.getItem('backgroundImage');
         if (backgroundImage) {
-            document.getElementById('fileInput').value = "";
-            console.log('Image chargée depuis localStorage:', backgroundImage);
             document.getElementById('backgroundOverlay').style.backgroundImage = `url(${backgroundImage})`;
+            console.log('Image de fond chargée depuis localStorage:', backgroundImage);
+        } else {
+            console.log('Aucune image de fond trouvée dans localStorage');
         }
 
         document.getElementById('uploadForm').addEventListener('submit', function(e) {
