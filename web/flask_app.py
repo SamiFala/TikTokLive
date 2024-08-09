@@ -295,6 +295,7 @@ async def stop_tiktok_client():
     print("Stopping TikTok client")
     await client.disconnect()
 
+
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -307,7 +308,11 @@ def upload_file():
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
+
+        # Enregistrer le fichier en streaming pour éviter les limitations de taille
+        with open(filepath, 'wb') as f:
+            f.write(file.stream.read())
+
         return jsonify({'success': True, 'url': f'/uploads/{filename}'})
     else:
         return jsonify({'success': False, 'error': 'Invalid file type'})
