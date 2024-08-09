@@ -302,6 +302,7 @@ async def stop_tiktok_client():
 
 
 # Route pour télécharger un fichier
+# Route pour télécharger un fichier
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
@@ -315,7 +316,8 @@ def upload_file():
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
         file.save(filepath)
-        return jsonify({'success': True, 'url': url_for('download_file', name=filename)}), 200
+        # Utiliser 'uploaded_file' comme endpoint pour générer l'URL de téléchargement
+        return jsonify({'success': True, 'url': url_for('uploaded_file', filename=filename)}), 200
     else:
         return jsonify({'success': False, 'error': 'Invalid file type'}), 400
 

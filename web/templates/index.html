@@ -34,6 +34,17 @@
             margin-bottom: 20px;
             z-index: 10;
         }
+        #backgroundOverlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+            z-index: 1; /* Assurez-vous que cette valeur est bien inférieure à celle des autres éléments */
+        }
         .card-custom {
             border-radius: 10px;
             text-align: center;
@@ -127,14 +138,14 @@
 
     <script>
         // DEV MODE: Activer le mode de développement pour voir les logs
-        /*var socket = io.connect('http://' + document.domain + ':' + location.port, {
+        var socket = io.connect('http://' + document.domain + ':' + location.port, {
             transports: ['websocket']
-        });*/
+        })
 
         // PROD MODE: Activer le mode de production pour éviter les logs
-        var socket = io.connect('https://' + document.domain + ':' + location.port, {
+        /*var socket = io.connect('https://' + document.domain + ':' + location.port, {
             transports: ['websocket']
-        });
+        });*/
 
         var playbackEnabled = false;
 
@@ -143,11 +154,42 @@
             playbackEnabled = true;
         });
 
-       // Charger l'image de fond depuis le localStorage
+        // Charger l'image de fond depuis le localStorage
         var backgroundImage = localStorage.getItem('backgroundImage');
         if (backgroundImage) {
+            console.log('Image chargée depuis localStorage:', backgroundImage);
             document.getElementById('backgroundOverlay').style.backgroundImage = `url(${backgroundImage})`;
         }
+
+        document.getElementById('uploadForm').addEventListener('submit', function(e) {
+            console.log('Uploading file...');
+            e.preventDefault();
+            var formData = new FormData();
+            var fileInput = document.getElementById('fileInput');
+            if (fileInput.files.length > 0) {
+                formData.append('file', fileInput.files[0]);
+                fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        console.log('File uploaded successfully:', data.url);
+                        // Ajout de log pour vérifier l'URL reçue
+                        console.log('URL de l\'image:', data.url);
+
+                        document.getElementById('backgroundOverlay').style.backgroundImage = `url(${data.url})`;
+                        localStorage.setItem('backgroundImage', data.url); // Sauvegarder l'image en localStorage
+                    } else {
+                        console.error('Upload failed:', data.error);
+                    }
+                })
+                .catch(error => console.error('Error:', error));
+            } else {
+                console.error('No file selected');
+            }
+        });
 
         // Contrôler l'affichage du fond d'écran avec un toggle
         document.getElementById('zIndexSwitch').addEventListener('change', function() {
@@ -189,33 +231,6 @@
                 .then(response => response.json())
                 .then(data => console.log(data))
                 .catch(error => console.error('Error:', error));
-        });
-
-        document.getElementById('uploadForm').addEventListener('submit', function(e) {
-            console.log('Uploading file...');
-            e.preventDefault();
-            var formData = new FormData();
-            var fileInput = document.getElementById('fileInput');
-            if (fileInput.files.length > 0) {
-                formData.append('file', fileInput.files[0]);
-                fetch('/upload', {
-                    method: 'POST',
-                    body: formData
-                })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        console.log('File uploaded successfully:', data.url);
-                        document.body.style.backgroundImage = `url(${data.url})`;
-                        localStorage.setItem('backgroundImage', data.url); // Sauvegarder l'image en local
-                    } else {
-                        console.error('Upload failed:', data.error);
-                    }
-                })
-                .catch(error => console.error('Error:', error));
-            } else {
-                console.error('No file selected');
-            }
         });
 
         // Gérer les événements TikTok
