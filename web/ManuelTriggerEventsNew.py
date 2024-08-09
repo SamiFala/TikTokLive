@@ -62,7 +62,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_url_path='/static')
 
-socketio = SocketIO(app, async_mode='gevent', logger=True, engineio_logger=True)
+socketio = SocketIO(app, async_mode='gevent', logger=True, engineio_logger=True, cors_allowed_origins="*")
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
@@ -112,7 +112,10 @@ async def start_tiktok_client():
 async def stop_tiktok_client():
     global client_connected
     if client_connected:
-        await client.disconnect()
+        if hasattr(client, 'disconnect') and callable(getattr(client, 'disconnect')):
+            await client.disconnect()
+        else:
+            logger.error("Client TikTok does not have an awaitable 'disconnect' method.")
         client_connected = False
         socketio.emit('status', {'data': 'OFF'}, namespace='/')
         logger.info("Le client TikTok a été arrêté.")
@@ -423,8 +426,13 @@ async def control_multiple_relays(devices, state):
 
 # Classe du serveur HTTP
 class MyServer(BaseHTTPRequestHandler):
-    def do_POST(self):
+    def do_GET(self):
+        self.send_response(200)
+        self.send_header("Content-type", "text/html")
+        self.end_headers()
+        self.wfile.write(b"<!DOCTYPE html><html><body><h1>My Custom Server</h1></body></html>")
 
+    def do_POST(self):
         # Lire les données de la requête POST
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
@@ -534,11 +542,11 @@ def index():
     return render_template('index.html')
 
 def run_flask():
-    socketio.run(app, host='0.0.0.0', port=8080)
+    socketio.run(app, host='0.0.0.0', port=8081)
 
 def run_http_server():
     webServer = HTTPServer((hostName, serverPort), MyServer)
-    logger.info(f"Server started http://{hostName}:{serverPort}")
+    logger.info(f"Server started https://{hostName}:{serverPort}")
 
     try:
         webServer.serve_forever()
