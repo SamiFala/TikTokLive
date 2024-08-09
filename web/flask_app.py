@@ -1,6 +1,3 @@
-import json
-import threading
-
 import gevent.monkey
 gevent.monkey.patch_all()
 
@@ -15,9 +12,25 @@ from TikTokLive.client.client import TikTokLiveClient
 from TikTokLive.events import FollowEvent, GiftEvent, ConnectEvent, LiveEndEvent, CommentEvent
 from device_controller import DeviceController
 from flask_socketio import SocketIO
+import json
+import threading
+import boto3
 import asyncio
+from botocore.client import Config
 
 from werkzeug.utils import secure_filename
+
+minio_client = boto3.client(
+    's3',
+    endpoint_url='http://5.196.8.104:9000/',
+    aws_access_key_id='03oMEV2ciBbT1FsdVEFi',
+    aws_secret_access_key='kTrkqfAwDgx5hc5vFwF30Hp7NUkcnLzinHQgOWxz',
+    config=Config(signature_version='s3v4')
+)
+
+response = minio_client.list_buckets()
+for bucket in response['Buckets']:
+    print(bucket['Name'])
 
 # Dossier où les fichiers téléchargés seront stockés
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
@@ -300,8 +313,6 @@ async def stop_tiktok_client():
     print("Stopping TikTok client")
     await client.disconnect()
 
-
-# Route pour télécharger un fichier
 # Route pour télécharger un fichier
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -312,22 +323,38 @@ def upload_file():
     if file.filename == '':
         return jsonify({'success': False, 'error': 'No selected file'}), 400
 
-    if file and allowed_file(file.filename):
-        filename = secure_filename(file.filename)
-        filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        file.save(filepath)
-        # Utiliser 'uploaded_file' comme endpoint pour générer l'URL de téléchargement
-        return jsonify({'success': True, 'url': url_for('uploaded_file', filename=filename)}), 200
-    else:
-        return jsonify({'success': False, 'error': 'Invalid file type'}), 400
+    filename = secure_filename(file.filename)
+    try:
+        # Upload le fichier sur MinIO
+        minio_client.upload_fileobj(
+            file,
+            'tiktoklive',  # Remplacez par le nom de votre bucket MinIO
+            filename
+        )
+        file_url = f"https://api.futurateck.com/tiktoklive/{filename}"
+        return jsonify({'success': True, 'url': file_url}), 200
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.errorhandler(413)
 def too_large(e):
     return "Le fichier est trop volumineux", 413
 
-@app.route('/uploads/<filename>')
-def uploaded_file(filename):
-    return send_from_directory(app.config['UPLOAD_FOLDER'], filename)
+@app.route('/download/<filename>', methods=['GET'])
+def download_file(filename):
+    try:
+        # Télécharge le fichier depuis MinIO
+        response = minio_client.get_object(
+            'tiktoklive',
+            filename
+        )
+        return response['Body'].read(), 200, {
+            'Content-Disposition': f'attachment; filename={filename}'
+        }
+
+    except Exception as e:
+        return jsonify({'success': False, 'error': str(e)}), 500
 
 @app.route('/start', methods=['POST'])
 def start_script():

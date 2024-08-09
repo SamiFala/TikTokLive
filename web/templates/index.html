@@ -157,12 +157,12 @@
         // Charger l'image de fond depuis le localStorage
         var backgroundImage = localStorage.getItem('backgroundImage');
         if (backgroundImage) {
+            document.getElementById('fileInput').value = "";
             console.log('Image chargée depuis localStorage:', backgroundImage);
             document.getElementById('backgroundOverlay').style.backgroundImage = `url(${backgroundImage})`;
         }
 
         document.getElementById('uploadForm').addEventListener('submit', function(e) {
-            console.log('Uploading file...');
             e.preventDefault();
             var formData = new FormData();
             var fileInput = document.getElementById('fileInput');
@@ -176,11 +176,11 @@
                 .then(data => {
                     if (data.success) {
                         console.log('File uploaded successfully:', data.url);
-                        // Ajout de log pour vérifier l'URL reçue
-                        console.log('URL de l\'image:', data.url);
-
+                        // Mettre à jour le fond d'écran avec l'URL retournée
                         document.getElementById('backgroundOverlay').style.backgroundImage = `url(${data.url})`;
-                        localStorage.setItem('backgroundImage', data.url); // Sauvegarder l'image en localStorage
+                        // Sauvegarder l'URL dans localStorage
+                        localStorage.setItem('backgroundImage', data.url);
+                        document.getElementById('fileInput').value = ""; // Réinitialiser le champ de fichier
                     } else {
                         console.error('Upload failed:', data.error);
                     }
