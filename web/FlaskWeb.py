@@ -431,6 +431,10 @@ async def control_multiple_relays(devices, state):
 class MyServer(BaseHTTPRequestHandler):
     def do_POST(self):
         # Lire les données de la requête POST
+        # Log the full URL being accessed
+        full_url = f"{self.headers['Host']}{self.path}"
+        logger.info(f"Full URL: {full_url}")
+        logger.info(f"Received POST request: {self.path}")  # Log supplémentaire pour la route
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
         logger.info(f"Raw POST data: {post_data}")
@@ -510,6 +514,9 @@ def uploaded_file(filename):
 
 @app.route('/start', methods=['POST'])
 def start_script():
+    full_url = request.url
+    logger.info(f"Full URL: {full_url}")
+
     logger.info("Requête de démarrage reçue.")
     asyncio.run_coroutine_threadsafe(start_tiktok_client(), loop)
     socketio.emit('status', {'data': 'ON'}, namespace='/')
@@ -518,11 +525,19 @@ def start_script():
 
 @app.route('/stop', methods=['POST'])
 def stop_script():
+    # Log the full URL being accessed
+    full_url = request.url
+    logger.info(f"Full URL: {full_url}")
+
     logger.info("Requête d'arrêt reçue.")
     asyncio.run_coroutine_threadsafe(stop_tiktok_client(), loop)
     socketio.emit('status', {'data': 'OFF'}, namespace='/')
     logger.info("Le client TikTok a été arrêté.")
     return jsonify({"status": "Client stopped"}), 200
+
+@app.before_request
+def log_request_info():
+    logger.info(f"Full URL accessed: {request.url}")
 
 @app.route('/videos/<path:filename>')
 def serve_video(filename):
