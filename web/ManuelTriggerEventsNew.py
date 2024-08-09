@@ -81,7 +81,7 @@ def read_log_stream(stream, log_type):
         if line:
             log = line.decode('utf-8').strip()
             logger.info(f"Log du script TikTok ({log_type}): {log}")
-            socketio.emit('log', {'data': log}, namespace='/')
+            socketio.emit('log', {'data': log})
     stream.close()
 
 def send_webhook(event, description, error_detail=None, color="242424"):
@@ -102,7 +102,7 @@ async def start_tiktok_client():
         if not client_connected:
             asyncio.ensure_future(client.start())
             client_connected = True
-            socketio.emit('status', {'data': 'ON'}, namespace='/')
+            socketio.emit('status', {'data': 'ON'})
             logger.info("Le client TikTok a été démarré.")
         else:
             logger.warning("Le client TikTok est déjà connecté.")
@@ -117,18 +117,20 @@ async def stop_tiktok_client():
         else:
             logger.error("Client TikTok does not have an awaitable 'disconnect' method.")
         client_connected = False
-        socketio.emit('status', {'data': 'OFF'}, namespace='/')
+        socketio.emit('status', {'data': 'OFF'})
         logger.info("Le client TikTok a été arrêté.")
     else:
         logger.warning("Le client TikTok n'est pas en cours d'exécution.")
 
 # Fonction pour jouer un son via le client web
 def play_sound_web(sound_path):
-    socketio.emit('play_sound', {'sound': f'/static/{sound_path}'}, namespace='/')
+    logger.info(f"Emitting play_sound event for: {sound_path}")  # Log supplémentaire
+    socketio.emit('play_sound', {'sound': f'/static/{sound_path}'})
 
 # Fonction pour jouer une vidéo via le client web
 def play_video_web(video_path):
-    socketio.emit('play_video', {'video': f'/static/{video_path}'}, namespace='/')
+    logger.info(f"Emitting play_video event for: {video_path}")  # Log supplémentaire
+    socketio.emit('play_video', {'video': f'/static/{video_path}'})
 
 
 class DeviceController:
@@ -426,27 +428,30 @@ async def control_multiple_relays(devices, state):
 
 # Classe du serveur HTTP
 class MyServer(BaseHTTPRequestHandler):
-    def do_GET(self):
-        self.send_response(200)
-        self.send_header("Content-type", "text/html")
-        self.end_headers()
-        self.wfile.write(b"<!DOCTYPE html><html><body><h1>My Custom Server</h1></body></html>")
-
     def do_POST(self):
         # Lire les données de la requête POST
+        # Log the full URL being accessed
+        full_url = f"{self.headers['Host']}{self.path}"
+        logger.info(f"Full URL: {full_url}")
+        logger.info(f"Received POST request: {self.path}")  # Log supplémentaire pour la route
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
         logger.info(f"Raw POST data: {post_data}")
 
         # Analyser les paramètres de l'URL directement
         parameters = urllib.parse.parse_qs(self.path)
+        logger.info(f"Parsed parameters: {parameters}")  # Log supplémentaire
+
         gift_name = next(iter(parameters.get('gift_name', [])[0:1]), None)
+        logger.info(f"Gift name received: {gift_name}")  # Log supplémentaire
+
 
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
 
         if gift_name:
+            logger.info(f"Triggering gift handling for: {gift_name}")  # Log supplémentaire
             asyncio.run_coroutine_threadsafe(la_gachette(gift_name), loop)
 
 
@@ -463,7 +468,7 @@ async def la_gachette(gift_name: str):
         else:
             await handle_gift(gift_name)
     except Exception as e:
-        logger.error(f"Error handling gift '{gift_name}': {str(e)}")
+        logger.error(f"Error handling gift '{gift_name}': {str(e)}", exc_info=True)  # Log d'erreur détaillé
         print(f"Error handling gift '{gift_name}': {str(e)}")
 
 async def main():
@@ -508,19 +513,30 @@ def uploaded_file(filename):
 
 @app.route('/start', methods=['POST'])
 def start_script():
+    full_url = request.url
+    logger.info(f"Full URL: {full_url}")
+
     logger.info("Requête de démarrage reçue.")
     asyncio.run_coroutine_threadsafe(start_tiktok_client(), loop)
-    socketio.emit('status', {'data': 'ON'}, namespace='/')
+    socketio.emit('status', {'data': 'ON'})
     logger.info("Le client TikTok a été démarré.")
     return jsonify({"status": "Client started"}), 200
 
 @app.route('/stop', methods=['POST'])
 def stop_script():
+    # Log the full URL being accessed
+    full_url = request.url
+    logger.info(f"Full URL: {full_url}")
+
     logger.info("Requête d'arrêt reçue.")
     asyncio.run_coroutine_threadsafe(stop_tiktok_client(), loop)
-    socketio.emit('status', {'data': 'OFF'}, namespace='/')
+    socketio.emit('status', {'data': 'OFF'})
     logger.info("Le client TikTok a été arrêté.")
     return jsonify({"status": "Client stopped"}), 200
+
+@app.before_request
+def log_request_info():
+    logger.info(f"Full URL accessed: {request.url}")
 
 @app.route('/videos/<path:filename>')
 def serve_video(filename):
@@ -535,6 +551,11 @@ def logs():
     logger.debug("Page des logs demandée.")
     return render_template('logs.html')
 
+# Serveur Python minimal
+@socketio.on('connect')
+def test_connect():
+    logger.info("Client connected")
+    socketio.emit('test_message', {'data': 'Server says hello!'})
 
 @app.route('/')
 def index():

@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tiktok Event</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background-color: #f8f9fa;
+        }
+        .card-custom {
+            border-radius: 10px;
+            text-align: center;
+            padding: 15px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        .card-custom:hover {
+            cursor: pointer;
+            transform: scale(1.05);
+        }
+        .delete-icon {
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            cursor: pointer;
+        }
+        .play-icon {
+            font-size: 40px;
+            color: #6c757d;
+        }
+        .fab-custom {
+            background-color: #ffc107;
+            color: white;
+            border-radius: 50%;
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+            cursor: pointer;
+        }
+    </style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("event-container").addEventListener("click", function(e) {
+                const card = e.target.closest('.card-custom');
+                const deleteIcon = e.target.closest('.delete-icon');
+
+                if (card && !deleteIcon) {
+                    const eventName = card.getAttribute('data-name');
+                    if (eventName) {
+                        triggerEvent(eventName);
+                    } else {
+                        console.error("Event name is null or undefined");
+                    }
+                }
+
+                if (deleteIcon) {
+                    e.stopPropagation();  // Empêcher le déclenchement de l'événement de la carte
+                    const eventId = deleteIcon.getAttribute('data-id');
+                    deleteEvent(eventId);
+                }
+            });
+        });
+
+        async function addEvent() {
+            const eventName = prompt("Enter the event name:");
+            if (eventName) {
+                try {
+                    const response = await fetch('/add_event', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ name: eventName }),
+                    });
+
+                    const newEvent = await response.json();
+                    if (response.ok) {
+                        const container = document.getElementById("event-container");
+                        const newEventHTML = `
+                            <div class="col-md-3 mb-4">
+                                <div class="card card-custom position-relative shadow" data-name="${newEvent.name}">
+                                    <div class="delete-icon" data-id="${newEvent.id}">
+                                        <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+                                            <path d="M0 0L10 10M10 0L0 10" stroke="#D60000" stroke-width="2"/>
+                                        </svg>
+                                    </div>
+                                    <h5>${newEvent.name}</h5>
+                                </div>
+                            </div>
+                        `;
+                        container.insertAdjacentHTML('beforeend', newEventHTML);
+                    } else {
+                        alert(newEvent.error);
+                    }
+                } catch (error) {
+                    console.error('Error adding event:', error);
+                }
+            }
+        }
+        async function triggerEvent(eventName) {
+            console.log(`Triggering event: ${eventName}`);  // Log pour vérifier si l'événement est bien capté
+            try {
+                const response = await fetch(`/handle_gift?gift_name=${encodeURIComponent(eventName)}`, {
+                    method: 'POST'
+                });
+
+                const result = await response.json();
+                if (response.ok) {
+                    alert(result.status);
+                } else {
+                    alert(`Error: ${result.status}`);
+                }
+            } catch (error) {
+                console.error('Error triggering event:', error);
+                alert('Error triggering event');
+            }
+        }
+
+        async function deleteEvent(eventId) {
+            if (confirm("Are you sure you want to delete this event?")) {
+                try {
+                    const response = await fetch('/delete_event', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ id: eventId }),
+                    });
+
+                    if (response.ok) {
+                        document.querySelector(`[data-id="${eventId}"]`).closest('.col-md-3').remove();
+                    } else {
+                        alert("Error deleting event");
+                    }
+                } catch (error) {
+                    console.error('Error deleting event:', error);
+                    alert('Error deleting event');
+                }
+            }
+        }
+    </script>
+</head>
+<body>
+
+<div class="container mt-5">
+    <h1 class="mb-4">Tiktok Event</h1>
+    <div id="event-container" class="row">
+        {% for event in events %}
+        <div class="col-md-3 mb-4">
+            <div class="card card-custom position-relative shadow" data-name="{{ event.name }}">
+                <div class="delete-icon" data-id="{{ event.id }}">
+                    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 10 10">
+                        <path d="M0 0L10 10M10 0L0 10" stroke="#D60000" stroke-width="2"/>
+                    </svg>
+                </div>
+                <h5>{{ event.name }}</h5>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<div class="fab-custom" onclick="addEvent()">
+    <svg width="24" height="24" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+        <path d="M12 5v14M5 12h14" stroke="black" stroke-width="2"/>
+    </svg>
+</div>
+
+<script src="https://kit.fontawesome.com/a076d05399.js"></script>
+</body>
+</html>
