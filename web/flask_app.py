@@ -6,7 +6,7 @@ gevent.monkey.patch_all()
 
 import os
 
-from flask import Flask, request, jsonify, render_template, send_from_directory
+from flask import Flask, request, jsonify, render_template, send_from_directory, url_for
 import logging
 
 from discord_webhook import DiscordWebhook
@@ -18,8 +18,18 @@ from flask_socketio import SocketIO
 import asyncio
 
 from werkzeug.utils import secure_filename
-app = Flask(__name__, static_url_path='/static')
-app.config['MAX_CONTENT_LENGTH'] = 100 * 1024 * 1024  # 100 MB max upload size
+
+# Dossier où les fichiers téléchargés seront stockés
+ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
+
+UPLOAD_FOLDER = 'uploads'
+EVENTS_FILE = 'events.json'
+
+app = Flask(__name__)
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
+
+# Limiter la taille maximale des fichiers téléchargés à 16 Mo
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024
 socketio = SocketIO(app, async_mode='gevent', logger=True, engineio_logger=True, cors_allowed_origins="*")
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(levelname)s - %(message)s')
 
@@ -34,11 +44,6 @@ devices = {
     # "souffleur": "f14512",
     # "confettis": "d889bebd",
 }
-
-UPLOAD_FOLDER = 'uploads'
-EVENTS_FILE = 'events.json'
-ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
-app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 if not os.path.exists(UPLOAD_FOLDER):
     os.makedirs(UPLOAD_FOLDER)
@@ -296,26 +301,23 @@ async def stop_tiktok_client():
     await client.disconnect()
 
 
+# Route pour télécharger un fichier
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
-        return jsonify({'success': False, 'error': 'No file part'})
+        return jsonify({'success': False, 'error': 'No file part'}), 400
 
     file = request.files['file']
     if file.filename == '':
-        return jsonify({'success': False, 'error': 'No selected file'})
+        return jsonify({'success': False, 'error': 'No selected file'}), 400
 
     if file and allowed_file(file.filename):
         filename = secure_filename(file.filename)
         filepath = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-
-        # Enregistrer le fichier en streaming pour éviter les limitations de taille
-        with open(filepath, 'wb') as f:
-            f.write(file.stream.read())
-
-        return jsonify({'success': True, 'url': f'/uploads/{filename}'})
+        file.save(filepath)
+        return jsonify({'success': True, 'url': url_for('download_file', name=filename)}), 200
     else:
-        return jsonify({'success': False, 'error': 'Invalid file type'})
+        return jsonify({'success': False, 'error': 'Invalid file type'}), 400
 
 @app.route('/uploads/<filename>')
 def uploaded_file(filename):
