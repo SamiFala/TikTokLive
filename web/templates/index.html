@@ -86,7 +86,11 @@
         // DEV MODE
         //var socket = io.connect('http://' + document.domain + ':' + location.port);
         // PROD MODE
-        var socket = io.connect('https://' + document.domain + ':' + location.port);
+        //var socket = io.connect('https://' + document.domain + ':' + location.port);
+        var socket = io.connect('https://' + document.domain + ':' + location.port, {
+            transports: ['websocket']
+        });
+
         var playbackEnabled = false;
 
         document.getElementById('enablePlayback').addEventListener('click', function() {
