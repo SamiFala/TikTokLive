@@ -87,7 +87,8 @@
         //var socket = io.connect('http://' + document.domain + ':' + location.port);
         // PROD MODE
         //var socket = io.connect('https://' + document.domain + ':' + location.port);
-        var socket = io.connect('https://' + document.domain + ':' + location.port, {
+        var port = location.port || (location.protocol === 'https:' ? 443 : 80);
+        var socket = io.connect('https://' + document.domain + ':' + port, {
             transports: ['websocket']
         });
 
@@ -176,7 +177,8 @@
         }
 
         // Écouter les événements pour jouer des sons
-        socket.on('play_sound', function(data) {
+         socket.on('play_sound', function(data) {
+            console.log('play_sound event received:', data);
             if (playbackEnabled) {
                 var audio = new Audio(data.sound);
                 audio.play().catch(function(error) {
@@ -186,24 +188,25 @@
         });
 
         // Écouter les événements pour jouer des vidéos
-        socket.on('play_video', function(data) {
-            if (playbackEnabled) {
-                var video = document.createElement('video');
-                video.src = data.video;
-                video.autoplay = true;
-                video.controls = true;
-                video.style.position = 'fixed';
-                video.style.top = '0';
-                video.style.left = '0';
-                video.style.width = '100%';
-                video.style.height = '100%';
-                video.style.zIndex = '1000';
-                document.body.appendChild(video);
-                video.addEventListener('ended', function() {
-                    document.body.removeChild(video);
-                });
-            }
-        });
+       socket.on('play_video', function(data) {
+        console.log('play_video event received:', data);
+        if (playbackEnabled) {
+            var video = document.createElement('video');
+            video.src = data.video;
+            video.autoplay = true;
+            video.controls = true;
+            video.style.position = 'fixed';
+            video.style.top = '0';
+            video.style.left = '0';
+            video.style.width = '100%';
+            video.style.height = '100%';
+            video.style.zIndex = '1000';
+            document.body.appendChild(video);
+            video.addEventListener('ended', function() {
+                document.body.removeChild(video);
+            });
+        }
+    });
     </script>
 </body>
 </html>

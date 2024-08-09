@@ -112,7 +112,10 @@ async def start_tiktok_client():
 async def stop_tiktok_client():
     global client_connected
     if client_connected:
-        await client.disconnect()
+        if hasattr(client, 'disconnect') and callable(getattr(client, 'disconnect')):
+            await client.disconnect()
+        else:
+            logger.error("Client TikTok does not have an awaitable 'disconnect' method.")
         client_connected = False
         socketio.emit('status', {'data': 'OFF'}, namespace='/')
         logger.info("Le client TikTok a été arrêté.")
@@ -424,7 +427,6 @@ async def control_multiple_relays(devices, state):
 # Classe du serveur HTTP
 class MyServer(BaseHTTPRequestHandler):
     def do_POST(self):
-
         # Lire les données de la requête POST
         content_length = int(self.headers['Content-Length'])
         post_data = self.rfile.read(content_length)
