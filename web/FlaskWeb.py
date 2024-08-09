@@ -62,7 +62,7 @@ logger = logging.getLogger(__name__)
 
 app = Flask(__name__, static_url_path='/static')
 
-socketio = SocketIO(app, async_mode='gevent', logger=True, engineio_logger=True)
+socketio = SocketIO(app, async_mode='gevent', logger=True, engineio_logger=True, cors_allowed_origins="*")
 
 UPLOAD_FOLDER = 'uploads'
 ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
