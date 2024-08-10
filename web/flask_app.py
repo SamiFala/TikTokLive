@@ -475,6 +475,9 @@ def index():
 def gachette():
     return render_template('gachette.html', events=events)
 
+def create_app():
+    return app
+
 def run_flask():
     socketio.run(app, host='0.0.0.0', port=8081)
 
