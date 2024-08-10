@@ -61,8 +61,6 @@ devices = {
     # "confettis": "d889bebd",
 }
 
-
-# Dictionnaire d'utilisateurs pour l'exemple
 users = {
     "yoyo": "sami",
     "yaya": "sami"
@@ -461,20 +459,19 @@ def save_events(events):
         logging.info("Events saved to file")  # Confirmation de la sauvegarde
     except Exception as e:
         logging.error(f"Error saving events: {e}", exc_info=True)
-@app.route('/')
-@auth.login_required
-def home():
-    print(f"User {auth.current_user()} accessed the home page")
-    return render_template('index.html', events=events)
-
-# Fonction de vérification de l'utilisateur
 @auth.verify_password
 def verify_password(username, password):
-    print(f"User {username} attempted to log in")
     if username in users and users[username] == password:
         return username
+    return None
+
+@app.route('/')
+@auth.login_required
+def index():
+    return render_template('index.html', events=events)
 
 @app.route('/gachette')
+@auth.login_required
 def gachette():
     return render_template('gachette.html', events=events)
 

@@ -139,14 +139,14 @@
 
     <script>
         // DEV MODE: Activer le mode de développement pour voir les logs
-        var socket = io.connect('http://' + document.domain + ':' + location.port, {
+        /*var socket = io.connect('http://' + document.domain + ':' + location.port, {
             transports: ['websocket']
-        })
+        })*/
 
         // PROD MODE: Activer le mode de production pour éviter les logs
-        /*var socket = io.connect('https://' + document.domain + ':' + location.port, {
+        var socket = io.connect('https://' + document.domain + ':' + location.port, {
             transports: ['websocket']
-        });*/
+        });
 
         var playbackEnabled = false;
 
