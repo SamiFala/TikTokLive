@@ -1,4 +1,6 @@
 import threading
+import sys
+sys.path.append('/root/tiktoklive/web')
 
 from flask_app import run_flask
 
