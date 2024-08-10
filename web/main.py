@@ -1,4 +1,7 @@
+import os
 import threading
+import sys
+sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
 from flask_app import run_flask, create_app
 
