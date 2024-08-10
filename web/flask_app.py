@@ -1,4 +1,6 @@
 import gevent.monkey
+from flask_httpauth import HTTPBasicAuth
+
 gevent.monkey.patch_all()
 
 import os
@@ -38,6 +40,7 @@ ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 UPLOAD_FOLDER = 'uploads'
 EVENTS_FILE = 'events.json'
 
+auth = HTTPBasicAuth()
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
@@ -56,6 +59,13 @@ devices = {
     "spots": "70518405971645"
     # "souffleur": "f14512",
     # "confettis": "d889bebd",
+}
+
+
+# Dictionnaire d'utilisateurs pour l'exemple
+users = {
+    "yoyo": "sami",
+    "yaya": "sami"
 }
 
 if not os.path.exists(UPLOAD_FOLDER):
@@ -452,8 +462,17 @@ def save_events(events):
     except Exception as e:
         logging.error(f"Error saving events: {e}", exc_info=True)
 @app.route('/')
-def index():
+@auth.login_required
+def home():
+    print(f"User {auth.current_user()} accessed the home page")
     return render_template('index.html', events=events)
+
+# Fonction de vérification de l'utilisateur
+@auth.verify_password
+def verify_password(username, password):
+    print(f"User {username} attempted to log in")
+    if username in users and users[username] == password:
+        return username
 
 @app.route('/gachette')
 def gachette():
