@@ -20,7 +20,7 @@ from botocore.client import Config
 
 from werkzeug.utils import secure_filename
 
-minio_client = boto3.client(
+"""minio_client = boto3.client(
     's3',
     endpoint_url='http://5.196.8.104:9000/',
     aws_access_key_id='03oMEV2ciBbT1FsdVEFi',
@@ -32,7 +32,7 @@ response = minio_client.list_buckets()
 for bucket in response['Buckets']:
     print(bucket['Name'])
 
-# Dossier où les fichiers téléchargés seront stockés
+# Dossier où les fichiers téléchargés seront stockés"""
 ALLOWED_EXTENSIONS = {'txt', 'pdf', 'png', 'jpg', 'jpeg', 'gif'}
 
 UPLOAD_FOLDER = 'uploads'
@@ -314,7 +314,7 @@ async def stop_tiktok_client():
     await client.disconnect()
 
 # Route pour télécharger un fichier
-@app.route('/upload', methods=['POST'])
+"""@app.route('/upload', methods=['POST'])
 def upload_file():
     if 'file' not in request.files:
         return jsonify({'success': False, 'error': 'No file part'}), 400
@@ -335,13 +335,13 @@ def upload_file():
         return jsonify({'success': True, 'url': file_url}), 200
 
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500"""
 
 @app.errorhandler(413)
 def too_large(e):
     return "Le fichier est trop volumineux", 413
 
-@app.route('/download/<filename>', methods=['GET'])
+""""@app.route('/download/<filename>', methods=['GET'])
 def download_file(filename):
     try:
         # Télécharge le fichier depuis MinIO
@@ -354,7 +354,7 @@ def download_file(filename):
         }
 
     except Exception as e:
-        return jsonify({'success': False, 'error': str(e)}), 500
+        return jsonify({'success': False, 'error': str(e)}), 500"""
 
 @app.route('/uploads/<path:filename>')
 def serve_uploads(filename):
@@ -404,9 +404,10 @@ def handle_gift():
 
     if gift_name:
         logging.info(f"Triggering gift handling for: {gift_name}")
+        gift_value = int(gift_name)
+        future = asyncio.run_coroutine_threadsafe(gift_actions(gift_value), asyncio_loop)
         try:
-            gift_value = int(gift_name)
-            loop.run_until_complete(gift_actions(gift_value))
+            future.result()  # Attendre le résultat si vous avez besoin de savoir quand la coroutine est terminée
             logging.info(f"Gift {gift_name} processed successfully")
         except Exception as e:
             logging.error(f"Error processing gift {gift_name}: {e}", exc_info=True)
