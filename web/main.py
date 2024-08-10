@@ -1,11 +1,7 @@
-import os
+import asyncio
 import threading
-import sys
-sys.path.append(os.path.abspath(os.path.dirname(__file__)))
 
-from flask_app import run_flask, create_app
-
-app = create_app()  # Crée l'application Flask pour Gunicorn
+from flask_app import run_flask
 
 def start_flask():
     run_flask()
