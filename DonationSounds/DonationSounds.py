@@ -167,14 +167,9 @@ access_token = controller.get_oauth_token(client_id, auth_code, redirect_uri)
 
 async def execute_action_by_diamonds(gift_value):
     if gift_value == 1:
-        await controller.control_multiple_relays(
-            {"girophare": devices["girophare"], "bulles": devices["bulles"], "spots": devices["spots"]}, "on")
         await controller.manually_play_sound("./sounds/bruit-de-pet.wav")
-        await asyncio.sleep(9)
-        await controller.control_multiple_relays(
-            {"girophare": devices["girophare"], "bulles": devices["bulles"], "spots": devices["spots"]}, "off")
 
-    """elif gift_value == 5:
+    elif gift_value == 5:
         await controller.manually_play_sound("./sounds/bruit_de_rot.wav")
 
     elif gift_value == 10:
@@ -338,7 +333,7 @@ async def execute_action_by_diamonds(gift_value):
         await controller.send_command(PINGPONG_MACHINE_URL)
         await controller.control_multiple_relays(
             {"mousse": devices["mousse"], "neige": devices["neige"], "bulles": devices["bulles"],
-             "spots": devices["spots"]}, "off")"""
+             "spots": devices["spots"]}, "off")
 
 
 ACTIONS = {
@@ -426,10 +421,10 @@ async def on_gift(event: GiftEvent):
 
 def signal_handler(sig, frame):
     send_webhook('Shutdown', 'The client has been shut down', color="FF0000")
-    if client.is_connected():
+    if client.connected:
         client.disconnect()
     print("Client has been shut down")
-    os._exit(0)
+    exit()
 
 signal.signal(signal.SIGINT, signal_handler)
 
