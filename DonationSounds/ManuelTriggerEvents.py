@@ -224,7 +224,7 @@ async def on_gift(gift_name: str):
         await controller.control_multiple_relays({"girophare": devices["girophare"]}, "on")
         await controller.manually_play_sound(f"./sounds/police-sirene.wav")
         await controller.manually_play_sound(f"./sounds/fbi-open-up.wav")
-        asyncio.sleep(10)
+        await asyncio.sleep(10)
         await controller.control_multiple_relays({"girophare": devices["girophare"]}, "off")
 
     elif gift_name == "200":
@@ -252,7 +252,7 @@ async def on_gift(gift_name: str):
         await controller.manually_play_sound(f"./sounds/oui_oui.wav")
         await controller.control_multiple_relays({"bulles": devices["bulles"]}, "on")
         await controller.play_video('./videos/oui-oui.mp4')
-        asyncio.sleep(10)
+        await asyncio.sleep(10)
         await controller.control_multiple_relays({"bulles": devices["bulles"]}, "off")
 
     elif gift_name == "699":
@@ -267,7 +267,7 @@ async def on_gift(gift_name: str):
         await controller.control_multiple_relays({"spots": devices["spots"]}, "on")
         await controller.play_video('./videos/train.mp4')
         await controller.manually_play_sound(f"./sounds/train.wav")
-        asyncio.sleep(9)
+        await asyncio.sleep(9)
         await controller.control_multiple_relays({"spots": devices["spots"]}, "off")
 
     elif gift_name == "1000":
@@ -277,7 +277,7 @@ async def on_gift(gift_name: str):
         await controller.send_command(SMOKE_TWO_MACHINE_URL)
         await controller.play_video('./videos/thriller.mp4')
         await controller.manually_play_sound(f"./sounds/thriller.wav")
-        asyncio.sleep(14)
+        await asyncio.sleep(14)
         await controller.send_command(PINGPONG_MACHINE_URL)
         await controller.control_multiple_relays({"spots": devices["spots"]}, "off")
 
@@ -285,14 +285,14 @@ async def on_gift(gift_name: str):
         await controller.control_multiple_relays({"spots": devices["spots"], "neige": devices["neige"]}, "on")
         await controller.play_video('./videos/film_300.mp4')
         await controller.manually_play_sound(f"./sounds/jump.wav")
-        asyncio.sleep(20)
+        await asyncio.sleep(20)
         await controller.control_multiple_relays({"neige": devices["neige"], "spots": devices["spots"]}, "off")
 
     elif gift_name == "1999":
         await controller.control_multiple_relays(
             {"spots": devices["spots"], "bulles": devices["bulles"], "neige": devices["neige"]}, "on")
         await controller.play_video('./videos/reine-des-neiges.mp4')
-        asyncio.sleep(30)
+        await asyncio.sleep(30)
         await controller.control_multiple_relays(
             {"neige": devices["neige"], "bulles": devices["bulles"], "spots": devices["spots"]}, "off")
         await controller.send_command(SMOKE_MACHINE_URL)
@@ -304,7 +304,7 @@ async def on_gift(gift_name: str):
              "mousse": devices["mousse"]}, "on")
         await controller.play_video('./videos/guiles.mp4')
         await controller.manually_play_sound(f"./sounds/guiles.wav")
-        asyncio.sleep(20)
+        await asyncio.sleep(20)
         await controller.control_multiple_relays(
             {"mousse": devices["mousse"], "neige": devices["neige"], "bulles": devices["bulles"],
              "spots": devices["spots"]}, "off")
@@ -317,10 +317,10 @@ async def on_gift(gift_name: str):
              "mousse": devices["mousse"]}, "on")
         await controller.send_command(PINGPONG_MACHINE_URL)
         await controller.play_video('./videos/turn-down-to-what.mp4')
-        asyncio.sleep(22)
+        await asyncio.sleep(22)
         await controller.send_command(SMOKE_MACHINE_URL)
         await controller.send_command(SMOKE_TWO_MACHINE_URL)
-        asyncio.sleep(2)
+        await asyncio.sleep(2)
         await controller.send_command(SMOKE_MACHINE_URL)
         await controller.send_command(SMOKE_TWO_MACHINE_URL)
         await controller.send_command(PINGPONG_MACHINE_URL)
@@ -335,10 +335,10 @@ async def on_gift(gift_name: str):
         await controller.send_command(PINGPONG_MACHINE_URL)
         await controller.play_video('./videos/interstellar.mp4')
         await controller.manually_play_sound(f"./sounds/interstellar.wav")
-        asyncio.sleep(30)
+        await asyncio.sleep(30)
         await controller.send_command(SMOKE_MACHINE_URL)
         await controller.send_command(SMOKE_TWO_MACHINE_URL)
-        asyncio.sleep(2)
+        await asyncio.sleep(2)
         await controller.send_command(SMOKE_MACHINE_URL)
         await controller.send_command(SMOKE_TWO_MACHINE_URL)
         await controller.send_command(PINGPONG_MACHINE_URL)
