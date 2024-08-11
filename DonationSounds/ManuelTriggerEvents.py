@@ -4,7 +4,7 @@ import json
 import logging
 import os.path
 import time
-from asyncio import AbstractEventLoop
+from asyncio import AbstractEventLoop, ensure_future
 from concurrent.futures import ThreadPoolExecutor
 
 import os
@@ -29,7 +29,11 @@ webhook = DiscordWebhook(url=WEBHOOK_URL)
 hostName = "0.0.0.0"
 serverPort = 5050
 
-loop: AbstractEventLoop = asyncio.get_event_loop()
+try:
+    loop = asyncio.get_running_loop()
+except RuntimeError:  # No event loop is running
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
 
 # Constantes regroupées
 SHELLY_PLUG_URL = "https://shelly-40-eu.shelly.cloud/device/relay/control"
@@ -356,16 +360,19 @@ class MyServer(BaseHTTPRequestHandler):
         self.end_headers()
 
         if gift_name:
-            on_gift(gift_name)
+            ensure_future(on_gift(gift_name))
 
 if __name__ == "__main__":
     webServer = HTTPServer((hostName, serverPort), MyServer)
     print("Server started http://%s:%s" % (hostName, serverPort))
 
     try:
-        webServer.serve_forever()
+        loop.run_until_complete(webServer.serve_forever())
     except KeyboardInterrupt:
         pass
+    finally:
+        loop.run_until_complete(loop.shutdown_asyncgens())
+        loop.close()
 
     webServer.server_close()
     print("Server stopped.")
