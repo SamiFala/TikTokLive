@@ -3,7 +3,7 @@ from TikTokLive.client.logger import LogLevel
 from TikTokLive.events import ConnectEvent
 
 client: TikTokLiveClient = TikTokLiveClient(
-    unique_id="@tv_asahi_news"
+    unique_id="@vraregirl"
 )
 
 

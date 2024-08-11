@@ -139,20 +139,41 @@
 
     <script>
         // DEV MODE: Activer le mode de développement pour voir les logs
-        /*var socket = io.connect('http://' + document.domain + ':' + location.port, {
-            transports: ['websocket']
-        })*/
+        var socket = io.connect('http://' + document.domain + ':' + location.port, {
+            transports: ['websocket'],
+            reconnection: true,
+            reconnectionAttempts: 5,
+            reconnectionDelay: 1000,
+            timeout: 20000,
+            pingTimeout: 60000
+        });
+
+        socket.on('connect', function() {
+            console.log('WebSocket connection established');
+        });
+
+        socket.on('disconnect', function() {
+            console.log('WebSocket connection lost. Attempting to reconnect...');
+        });
+
+        socket.on('reconnect', function() {
+            console.log('Reconnected to WebSocket server');
+            // Si nécessaire, réémettre les événements ou recharger l'état
+        });
+
 
         // PROD MODE: Activer le mode de production pour éviter les logs
-        var socket = io.connect('https://' + document.domain + ':' + location.port, {
+        /*var socket = io.connect('https://' + document.domain + ':' + location.port, {
             transports: ['websocket']
-        });
+        });*/
 
         var playbackEnabled = false;
 
         // Activer la lecture automatique
+
         document.getElementById('enablePlayback').addEventListener('click', function() {
             playbackEnabled = true;
+            console.log("Playback enabled by user");
         });
 
         var backgroundImage = localStorage.getItem('backgroundImage');
@@ -336,10 +357,17 @@
         }
 
         socket.on('play_sound', function(data) {
-            var audio = new Audio(data.sound);
-            audio.play().catch(function(error) {
-                console.error('Error playing sound:', error);
-            });
+            console.log('Received play_sound event'); // Vérifier que l'événement est reçu
+            console.log('Data received:', data);      // Voir les données reçues
+            if (data && data.sound) {
+                console.log('Playing sound:', data.sound);
+                var audio = new Audio(data.sound);
+                audio.play().catch(function(error) {
+                    console.error('Error playing sound:', error);
+                });
+            } else {
+                console.warn('No sound data received or data.sound is undefined');
+            }
         });
 
         socket.on('play_video', function(data) {

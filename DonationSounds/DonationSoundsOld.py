@@ -8,6 +8,7 @@ from TikTokLive.events import FollowEvent, GiftEvent, DisconnectEvent, UnknownEv
 from concurrent.futures import ThreadPoolExecutor
 from TikTokLive.client.logger import LogLevel
 from playsound import playsound
+import signal
 from ratelimiter import RateLimiter
 
 client: TikTokLiveClient = TikTokLiveClient(unique_id="@cam_off_tiktok")
@@ -21,6 +22,7 @@ PINGPONG_MACHINE_URL = "https://api.switch-bot.com/v1.0/devices/F3DFF2EAB30F/com
 
 user_followers = []
 requestToSend = requests.Session()
+
 device_commands = {
     "run": {
         "giro": 'http://192.168.1.20/relay/0?turn=on',
@@ -43,8 +45,8 @@ device_commands = {
 }
 
 device_ids = {
-    "spots": "f14512",
-    "mousse": "f169d0",
+    "spots": "4022d889bebd",
+    "mousse": "f14512",
     "souffleur": "f14512",
     "bubble": "f16102",
     "confettis": "4022d889bebd",
@@ -92,6 +94,7 @@ class DeviceController:
         device_id = device_ids.get(device_name)
         if not device_id:
             print(f"Device {device_name} not found")
+            send_webhook('Error', f'Device {device_name} not found', color="FF0000")
             return
         data = {
             "channel": "0",
@@ -104,7 +107,8 @@ class DeviceController:
             response.raise_for_status()
             print(f"Device {device_name} turned {turn}")
         except requests.exceptions.RequestException as err:
-            send_webhook('Error', 'Error controlling device', error_detail=err, color="FF0000")
+            send_webhook('Error', f'Error controlling device {device_name}', error_detail=err, color="FF0000")
+            send_webhook('Error', f'Error controlling device {device_name}', error_detail=err.response, color="FF0000")
             print(f"Error controlling device: {err}")
         if response is not None:
             print(f"Response content: {response.content}")
@@ -176,11 +180,11 @@ async def execute_action_by_diamonds(diamond_count):
         await controller.manually_play_sound(f"./sounds/chinese_rap_song.wav")
 
     elif diamond_count == 99:
+        controller.control_device("giro", "on")
         controller.play_video('./videos/alerte-rouge.mp4')
         await controller.manually_play_sound(f"./sounds/nuke_alarm.wav")
         await asyncio.sleep(8)
-        #controller.control_device("giro", "on")
-        #controller.control_device("giro", "off")
+        controller.control_device("giro", "off")
 
     elif diamond_count == 100:
         controller.play_video('./videos/cri-de-cochon.mp4')
@@ -192,11 +196,11 @@ async def execute_action_by_diamonds(diamond_count):
         controller.play_video('./videos/tu-vas-repartir-mal-mon-copain.mp4')
 
     elif diamond_count == 199:
+        controller.control_device("giro", "on")
         await controller.manually_play_sound(f"./sounds/police-sirene.wav")
         await controller.manually_play_sound(f"./sounds/fbi-open-up.wav")
         await asyncio.sleep(10)
-        #controller.control_device("giro", "on")
-        #controller.control_device("giro", "off")
+        controller.control_device("giro", "off")
 
     elif diamond_count == 200:
         controller.play_video('./videos/tu-vas-repartir-mal-mon-copain.mp4')
@@ -384,6 +388,7 @@ async def on_follow(event: FollowEvent):
         await controller.manually_play_sound(f"./sounds/uwu.wav")
 
 
+@client.on(GiftEvent)
 async def on_gift(event: GiftEvent):
     client.logger.info("Received a gift!")
     # Streakable gift & streak is over
@@ -396,6 +401,15 @@ async def on_gift(event: GiftEvent):
         await asyncio.create_task(ACTIONS.get(event.gift.diamond_count, lambda _: None)(event.gift.diamond_count))
 
 
+def signal_handler(sig, frame):
+    send_webhook('Shutdown', 'The client has been shut down', color="FF0000")
+    if client.is_connected():
+        client.disconnect()
+    print("Client has been shut down")
+    os._exit(0)
+
+signal.signal(signal.SIGINT, signal_handler)
+
 if __name__ == '__main__':
     client.logger.setLevel(LogLevel.INFO.value)
     send_webhook('Start', 'The client has started', color="00FF00")
@@ -403,4 +417,5 @@ if __name__ == '__main__':
         client.run()
     except KeyboardInterrupt:
         send_webhook('Shutdown', 'The client has been shut down', color="FF0000")
+        signal_handler(signal.SIGINT, None)
         print("Client has been shut down")

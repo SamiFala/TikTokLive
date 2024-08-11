@@ -1,10 +1,10 @@
 import asyncio
 import threading
 
-from flask_app import run_flask
+from flask_app import app
 
 def start_flask():
-    run_flask()
+    app.run()
 
 if __name__ == "__main__":
     # Démarrer Flask dans le thread principal
