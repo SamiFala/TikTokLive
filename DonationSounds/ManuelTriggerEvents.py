@@ -18,8 +18,13 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import urllib.parse
 
 from pyttsx3 import Engine
+from discord_webhook import DiscordWebhook, DiscordEmbed
 
-from DonationSounds.DonationSounds import webhook
+
+WEBHOOK_URL = 'https://discordapp.com/api/webhooks/1102639998987145426/_9xjoxzaFR_UoCyibmK3XuLA_5vkhzKbn0yQxgg8dNDZdkSxR7EqWul_6-9O8VkIDDr1'
+
+
+webhook = DiscordWebhook(url=WEBHOOK_URL)
 
 hostName = "0.0.0.0"
 serverPort = 5050
