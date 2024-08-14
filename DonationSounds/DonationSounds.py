@@ -52,6 +52,7 @@ def send_webhook(event, description, error_detail=None, color="242424"):
 
 client_id = "shelly-sas"
 auth_code = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzaGVsbHktc2FzIiwiaWF0IjoxNzIyNjg0ODcwLCJ1c2VyX2lkIjoiMTE4NjYzNSIsInNuIjoiMSIsInVzZXJfYXBpX3VybCI6Imh0dHBzOlwvXC9zaGVsbHktNDAtZXUuc2hlbGx5LmNsb3VkIiwibiI6MjUzM30.D0p1Vysbq6cILgrbT194cmg4TmQ-UcClQHVmypw77GM"
+switch_bot_token = "09f984c25288d88849a45b8dce8010b5f03104f8abc47ee87beb9031d97d6db550f2e903358b84f039b23ab3371032bc"
 redirect_uri = "https://futurateck.com"
 
 access_token = None  # Initialisation globale
@@ -67,9 +68,12 @@ class DeviceController:
         webhook.add_embed(embed)
         try:
             response = webhook.execute()
+            print(response)
             if response.status_code != 200:
+                self.send_webhook('Error', 'Webhook failed', color="FF0000")
                 print(f"Webhook failed with status code {response.status_code}: {response.text}")
         except Exception as e:
+            self.send_webhook('Error', 'Failed to send webhook', error_detail=e, color="FF0000")
             print(f"Failed to send webhook: {e}")
 
     def get_oauth_token(self, client_id, auth_code, redirect_uri):
@@ -88,9 +92,11 @@ class DeviceController:
                 logging.info("Token obtained successfully")
                 return token
             else:
+                self.send_webhook('Error', 'Failed to obtain token: No token in response', color="FF0000")
                 logging.error("Failed to obtain token: No token in response")
                 return None
         except requests.exceptions.RequestException as err:
+            self.send_webhook('Error', 'Failed to obtain token', error_detail=err, color="FF0000")
             logging.error(f"Failed to obtain token: {err}")
             return None
 
@@ -116,13 +122,16 @@ class DeviceController:
                 logging.info(f"Relay control response for {device_id}: {response}")
         except websockets.exceptions.InvalidStatusCode as e:
             if e.status_code == 401:
+                self.send_webhook('Error', 'Access token expired or invalid. Obtaining a new token', color="FF0000")
                 logging.warning("Access token expired or invalid. Obtaining a new token.")
                 access_token = self.get_oauth_token(client_id, auth_code, redirect_uri)
                 if access_token:
                     await self.control_relay(device_id, state)
                 else:
+                    self.send_webhook('Error', 'Failed to obtain new token', color="FF0000")
                     logging.error("Failed to obtain new token")
             else:
+                self.send_webhook('Error', 'Error sending command', error_detail=e, color="FF0000")
                 logging.error(f"WebSocket connection failed with status code: {e.status_code}")
 
     async def control_multiple_relays(self, devices, state):
@@ -136,12 +145,13 @@ class DeviceController:
             "commandType": "command"
         })
         headers = {
-            'Authorization': f'Bearer {access_token}',
+            'Authorization': f'Bearer {switch_bot_token}',
             'Content-Type': 'application/json'
         }
         try:
             response = requests.post(url, headers=headers, data=body)
             response.raise_for_status()
+            print(f"Command sent successfully: {response.text}")
         except requests.exceptions.RequestException as err:
             self.send_webhook('Error', 'Error sending command', error_detail=err, color="FF0000")
             print(f"Error sending command: {err}")
@@ -368,11 +378,31 @@ ACTIONS = {
     5000: execute_action_by_diamonds
 }
 
+async def reconnect(attempts=5):
+    for i in range(attempts):
+        send_webhook('Error', f"Reconnect attempt {i+1}", color="FF0000")
+        try:
+            await asyncio.sleep(2 ** i)  # Backoff exponentiel
+            await client.start()
+            return
+        except Exception as e:
+            send_webhook('Error', f"Reconnect attempt {i+1} failed: {e}", color="FF0000")
+            logging.error(f"Reconnect attempt {i+1} failed: {e}")
+    send_webhook('Error', 'Max reconnection attempts reached. Exiting.', color="FF0000")
+    logging.error("Max reconnection attempts reached. Exiting.")
+    await shutdown()
+    exit()
+
+async def shutdown():
+    tasks = [t for t in asyncio.all_tasks() if t is not asyncio.current_task()]
+    [task.cancel() for task in tasks]
+    await asyncio.gather(*tasks, return_exceptions=True)
+    asyncio.get_event_loop().stop()
 
 @client.on(DisconnectEvent)
 async def relaunch(_: DisconnectEvent):
-    await client.start()
-
+    send_webhook('Error', 'Disconnected from TikTok', color="FF0000")
+    await reconnect()
 
 @client.on(ConnectEvent)
 async def on_connect(event: ConnectEvent):
@@ -380,18 +410,21 @@ async def on_connect(event: ConnectEvent):
 
 @client.on(CommentEvent)
 async def on_connect(event: CommentEvent):
-    client.logger.info(f"Comment from {event.user.unique_id}: {event.comment}")
-
-
+    print(f"Comment from {event.user.unique_id}: {event.comment}")
+    # client.logger.info(f"Comment from {event.user.unique_id}: {event.comment}")
 
 @client.on(LiveEndEvent)
 async def on_liveend(event: LiveEndEvent):
+    send_webhook('Live ended', 'The live has ended', color="FF0000")
+    print("Live ended")
+    await shutdown()
     exit()
 
 
 @client.on(FollowEvent)
 async def on_follow(event: FollowEvent):
     if event.user.unique_id not in user_followers:
+        print(f"{event.user.unique_id} followed")
         user_followers.append(event.user.unique_id)
         await controller.manually_play_sound(f"./sounds/uwu.wav")
 
@@ -407,20 +440,23 @@ async def on_gift(event: GiftEvent):
         print(f"{event.user.unique_id} sent {event.repeat_count}x \"{event.gift.name}\"")
         action = ACTIONS.get(event.gift.diamond_count, noop)
         if action:
+            print(f"Executing action for {event.gift.diamond_count} diamonds")
             await asyncio.create_task(action(event.gift.diamond_count))
         else:
+            send_webhook('Error', 'No action found for gift value', color="FF0000")
             client.logger.warning(f"No action found for {event.gift.diamond_count} diamonds.")
     # Non-streakable gift
     elif not event.gift.streakable:
         print(f"{event.user.unique_id} sent \"{event.gift.name}\"")
         action = ACTIONS.get(event.gift.diamond_count, noop)
         if action:
+            print(f"Executing action for {event.gift.diamond_count} diamonds")
             await asyncio.create_task(action(event.gift.diamond_count))
         else:
+            send_webhook('Error', 'No action found for gift value', color="FF0000")
             client.logger.warning(f"No action found for {event.gift.diamond_count} diamonds.")
 
 def signal_handler(sig, frame):
-    send_webhook('Shutdown', 'The client has been shut down', color="FF0000")
     if client.connected:
         client.disconnect()
     print("Client has been shut down")

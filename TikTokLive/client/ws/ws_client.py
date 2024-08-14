@@ -4,6 +4,7 @@ from typing import Optional, AsyncIterator, List, Dict, Any, Callable, Tuple
 from httpx import Proxy
 from python_socks import parse_proxy_url, ProxyType
 from websockets import WebSocketClientProtocol
+import websockets
 from websockets.legacy.client import Connect, WebSocketClientProtocol
 from websockets_proxy import websockets_proxy
 from websockets_proxy.websockets_proxy import ProxyConnect
@@ -179,27 +180,38 @@ class WebcastWSClient:
         :param uri: URI to connect to
         :param headers: Headers used for the connection
         :return: Yields WebcastResponseMessage
-
         """
 
         connect: Callable = WebcastProxyConnect if self._ws_proxy else Connect
 
-        # Run connection loop
-        async for websocket in connect(**self.build_connection_args(uri, headers)):
+        while True:
+            try:
+                # Run connection loop
+                async for websocket in connect(**self.build_connection_args(uri, headers)):
 
-            # Update the stored websocket
-            self._ws = websocket
+                    # Update the stored websocket
+                    self._ws = websocket
 
-            # Each time we receive a message, process it
-            async for message in websocket:
+                    # Each time we receive a message, process it
+                    async for message in websocket:
 
-                # Yield processed messages
-                for webcast_message in await self.process_recv(message):
-                    yield webcast_message
+                        # Yield processed messages
+                        for webcast_message in await self.process_recv(message):
+                            yield webcast_message
 
-                # Handle cancellation request
-                if self._ws_cancel is not None:
-                    return
+                        # Handle cancellation request
+                        if self._ws_cancel is not None:
+                            return
+
+            except (websockets.exceptions.ConnectionClosedError, websockets.exceptions.ConnectionClosedOK) as e:
+                # Log the exception and retry connection
+                print(f"WebSocket connection closed with exception: {e}. Reconnecting...")
+                await asyncio.sleep(5)  # Attendre un moment avant de réessayer
+
+            except Exception as e:
+                # Handle any other exceptions that might occur
+                print(f"An unexpected error occurred: {e}. Reconnecting...")
+                await asyncio.sleep(5)  # Attendre un moment avant de réessayer
 
             if self._ws_cancel is not None:
                 return
