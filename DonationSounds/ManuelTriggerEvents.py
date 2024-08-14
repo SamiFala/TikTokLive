@@ -60,6 +60,7 @@ logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(
 
 client_id = "shelly-sas"
 auth_code = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJzaGVsbHktc2FzIiwiaWF0IjoxNzIyNjg0ODcwLCJ1c2VyX2lkIjoiMTE4NjYzNSIsInNuIjoiMSIsInVzZXJfYXBpX3VybCI6Imh0dHBzOlwvXC9zaGVsbHktNDAtZXUuc2hlbGx5LmNsb3VkIiwibiI6MjUzM30.D0p1Vysbq6cILgrbT194cmg4TmQ-UcClQHVmypw77GM"
+switch_bot_token = "09f984c25288d88849a45b8dce8010b5f03104f8abc47ee87beb9031d97d6db550f2e903358b84f039b23ab3371032bc"
 redirect_uri = "https://futurateck.com"
 
 access_token = None  # Initialisation globale
@@ -145,7 +146,7 @@ class DeviceController:
             "commandType": "command"
         })
         headers = {
-            'Authorization': f'Bearer {access_token}',
+            'Authorization': f'Bearer {switch_bot_token}',
             'Content-Type': 'application/json'
         }
         try:
